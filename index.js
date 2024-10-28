@@ -5,9 +5,9 @@ const program = new Command();
 
 const packageJson = require("./package.json");
 
-const initPackage = require("./src/scripts/init-package.js");
-const copyConfig = require("./src/scripts/copy-config.js");
-const copyTemplates = require("./src/scripts/copy-templates.js");
+const initPackage = require("./src/scripts/init/init-package.js");
+const copyConfig = require("./src/scripts/init/copy-config.js");
+const copyTemplates = require("./src/scripts/init/copy-templates.js");
 const generateComponents = require("./src/scripts/generate-components.js");
 
 // Define the version of your package

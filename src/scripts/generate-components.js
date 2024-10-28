@@ -2,7 +2,7 @@ const { Project } = require("ts-morph");
 const path = require("path");
 const ejs = require("ejs");
 const prettier = require("prettier");
-const { resilientWrite } = require("../utils/file");
+const { resilientWrite } = require("../utils/file-copy");
 
 const typeMappings = {
   string: { htmlType: "text", yupType: "string" },

@@ -186,7 +186,7 @@ const renderComponent = (className, properties) => {
       process.cwd(),
       settings.generatedOutputDirectory,
       className, // Use className for the folder
-      `${storyFileName}.js`
+      `${storyFileName}.jsx`
     );
 
     const parser = getPrettierParser(storyOutputPath);

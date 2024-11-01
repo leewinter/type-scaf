@@ -1,3 +1,5 @@
 {
-    "generatedOutputDirectory": "src/components/generated"
+    "generatedOutputDirectory": "src/components/generated",
+    "generatedComponentFileName" : "{{className}}Form",
+    "generatedStoryFileName": "{{className}}Form.stories"
 }

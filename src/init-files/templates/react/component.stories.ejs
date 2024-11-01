@@ -1,0 +1,42 @@
+import React from 'react';
+import <%= componentName %> from './<%= componentName %>';
+
+export default {
+  title: 'Generated/<%= componentName %>',
+  component: <%= componentName %>,
+  argTypes: {
+    defaultValues: { control: 'object' },
+    multiSelectOptions: { control: 'object' },
+    selectOptions: { control: 'object' },
+  },
+};
+
+const Template = (args) => <<%= componentName %> {...args} />;
+
+export const Default = Template.bind({});
+Default.args = {
+  defaultValues: {
+    <% types.forEach(type => {
+       if (!type.primaryKey) { %>
+        <%= type.name %>: <%- 
+          (type.yupType === 'string' ? "''"
+          : type.yupType === 'number' ? 0
+          : type.yupType === 'date' ? "new Date()"
+          : type.yupType === 'array' ? "[]"
+          : type.yupType === 'object' ? "null" // Set custom objects to null
+          : "''") %>,
+      <% } }) %>
+  },
+  multiSelectOptions: {
+    <% types.forEach(type => {
+       if (type.type === 'multi-select') { %>
+        <%= type.name %>: [{ label: 'Option 1' }, { label: 'Option 2' }],
+    <% } }) %>
+  },
+  selectOptions: {
+    <% types.forEach(type => {
+       if (type.type === 'select') { %>
+        <%= type.name %>: [{ value: 'option1', label: 'Option 1' }, { value: 'option2', label: 'Option 2' }],
+    <% } }) %>
+  },
+};

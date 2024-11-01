@@ -89,6 +89,7 @@ const <%= componentName %> = ({ defaultValues, multiSelectOptions, selectOptions
                       name="<%= type.name %>"
                       value={formData.<%= type.name %>}
                       onChange={handleChange}
+                      <% if (type.required) { %>required<% } %> // Mark Select as required if necessary
                     >
                       {(selectOptions['<%= type.name %>'] || []).map(option => (
                         <MenuItem key={option.value} value={option.value}>
@@ -109,6 +110,7 @@ const <%= componentName %> = ({ defaultValues, multiSelectOptions, selectOptions
                     error={!!errors.<%= type.name %>}
                     helperText={errors.<%= type.name %> || ''}
                     variant="outlined"
+                    <% if (type.required) { %>required<% } %> // Mark TextField as required if necessary
                   />
                 <% } %>
               <% } }) %>

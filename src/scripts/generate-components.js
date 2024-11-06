@@ -148,15 +148,18 @@ const processNode = (node) => {
   }
 };
 
-module.exports = () => {
-  const packageJsonPath = path.join(
-    process.cwd(),
-    "type-scaf",
-    "config",
-    "package-types.ts"
-  );
-  const project = new Project();
-  const sourceFile = project.addSourceFileAtPath(packageJsonPath);
+module.exports = {
+  generateComponents: () => {
+    const packageJsonPath = path.join(
+      process.cwd(),
+      "type-scaf",
+      "config",
+      "package-types.ts"
+    );
+    const project = new Project();
+    const sourceFile = project.addSourceFileAtPath(packageJsonPath);
 
-  sourceFile.forEachChild(processNode);
+    sourceFile.forEachChild(processNode);
+  },
+  parseTypeFromNode,
 };

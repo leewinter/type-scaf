@@ -1,32 +1,40 @@
 const fs = require("fs");
 const path = require("path");
-const { resilientCopy } = require("../utils/file");
+const { resilientCopy } = require("../../utils/file-copy");
 
 module.exports = () => {
   // Config
   const packageTypesTargetFilePath = path.join(
     process.cwd(),
-    "type-scaf/config/package-types.ts"
+    "type-scaf",
+    "config",
+    "package-types.ts"
   );
 
   const packageTypesSourceFilePath = path.join(
     __dirname,
     "..",
+    "..",
+    "init-files",
     "config",
     "package-types.ts"
   );
 
   resilientCopy(packageTypesSourceFilePath, packageTypesTargetFilePath);
 
-  // Config
+  // Settings
   const packageSettingsTargetFilePath = path.join(
     process.cwd(),
-    "type-scaf/config/settings.json"
+    "type-scaf",
+    "config",
+    "settings.json"
   );
 
   const packageSettingsSourceFilePath = path.join(
     __dirname,
     "..",
+    "..",
+    "init-files",
     "config",
     "settings.json"
   );

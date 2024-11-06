@@ -1,4 +1,4 @@
-const { parseTypeFromNode } = require("../generate-components");
+const parseTypeFromNode = require("../parse-type-from-node");
 const { Project } = require("ts-morph");
 
 describe("parseTypeFromNode", () => {
@@ -24,11 +24,15 @@ describe("parseTypeFromNode", () => {
 
   it("should return multi-select for array types", () => {
     const typeNode = project
-      .createSourceFile("temp.ts", "let test: number[];", { overwrite: true })
-      .getVariableDeclarationOrThrow("test")
+      .createSourceFile("temp.ts", "let x: SomeType[];", { overwrite: true })
+      .getVariableDeclarationOrThrow("x")
       .getTypeNodeOrThrow();
     const result = parseTypeFromNode(typeNode);
-    expect(result).toEqual({ htmlType: "multi-select", yupType: "array" });
+    expect(result).toEqual({
+      htmlType: "multi-select",
+      yupType: "array",
+      subProperties: null,
+    });
   });
 
   it("should return select and object for custom classes with properties", () => {
@@ -39,6 +43,10 @@ describe("parseTypeFromNode", () => {
         class Customer {
           customerId: number;
           name: string;
+
+          constructor(customerId: number, name: string){
+          
+          }
         }
         let test: Customer;
         `,
@@ -47,7 +55,11 @@ describe("parseTypeFromNode", () => {
       .getVariableDeclarationOrThrow("test")
       .getTypeNodeOrThrow();
     const result = parseTypeFromNode(typeNode);
-    expect(result).toEqual({ htmlType: "select", yupType: "object" });
+    expect(result).toEqual({
+      htmlType: "select",
+      yupType: "object",
+      subProperties: [],
+    });
   });
 
   it("should return select and string for enums", () => {

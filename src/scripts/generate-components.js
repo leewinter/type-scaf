@@ -51,6 +51,18 @@ const parseClassMembers = (classDeclaration) => {
             );
 
             let propertyType = { htmlType: "text", yupType: "string" };
+            let isPrimaryKey = false;
+
+            // Check if the class property has a decorator like @primaryKey
+            const classProperty = classDeclaration.getProperty(propertyName);
+            if (classProperty) {
+              const primaryKeyDecorator =
+                classProperty.getDecorator("primaryKey");
+              if (primaryKeyDecorator) {
+                isPrimaryKey = true;
+              }
+            }
+
             if (matchingParam) {
               const typeNode = matchingParam.getTypeNode();
               if (typeNode) {
@@ -65,7 +77,7 @@ const parseClassMembers = (classDeclaration) => {
               type: propertyType.htmlType,
               yupType: propertyType.yupType,
               required: true,
-              primaryKey: false,
+              primaryKey: isPrimaryKey,
             });
           }
         }

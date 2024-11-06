@@ -1,4 +1,5 @@
 class Customer {
+  @primaryKey
   customerId: number;
   name: string;
   age: number | null;
@@ -10,7 +11,9 @@ class Customer {
   }
 }
 
+// test
 class Product {
+  @primaryKey
   productId: number;
   name: string;
   price: number | null;
@@ -23,6 +26,7 @@ class Product {
 }
 
 class Order {
+  @primaryKey
   orderId: number;
   customer: Customer;
   products: Product[];

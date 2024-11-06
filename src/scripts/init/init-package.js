@@ -4,19 +4,16 @@ const path = require("path");
 
 module.exports = () => {
   // Install the package as a dev dependency
-  // const installCommand = "npm install --save-dev ../type-scaf";
-  // console.log(`Running: ${installCommand}`);
-  // execSync(installCommand, { stdio: "inherit" });
-
-  // const installEjsCommand = "npm install --save-dev ejs";
-  // console.log(`Running: ${installEjsCommand}`);
-  // execSync(installEjsCommand, { stdio: "inherit" });
+  const installCommand = "npm install --save-dev github:leewinter/type-scaf";
+  console.log(`Running: ${installCommand}`);
+  execSync(installCommand, { stdio: "inherit" });
 
   const installYupCommand = "npm install yup";
   console.log(`Running: ${installYupCommand}`);
   execSync(installYupCommand, { stdio: "inherit" });
 
-  const installMaterialUiCommand = "npm install @mui/material";
+  const installMaterialUiCommand =
+    "npm install @mui/material @emotion/react @emotion/styled";
   console.log(`Running: ${installMaterialUiCommand}`);
   execSync(installMaterialUiCommand, { stdio: "inherit" });
 

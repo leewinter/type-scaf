@@ -4,9 +4,9 @@ const path = require("path");
 
 module.exports = () => {
   // Install the package as a dev dependency
-  const installCommand = "npm install --save-dev github:leewinter/type-scaf";
-  console.log(`Running: ${installCommand}`);
-  execSync(installCommand, { stdio: "inherit" });
+  // const installCommand = "npm install --save-dev github:leewinter/type-scaf";
+  // console.log(`Running: ${installCommand}`);
+  // execSync(installCommand, { stdio: "inherit" });
 
   const installYupCommand = "npm install yup";
   console.log(`Running: ${installYupCommand}`);

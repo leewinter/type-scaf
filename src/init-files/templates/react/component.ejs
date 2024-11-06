@@ -1,8 +1,25 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import * as Yup from 'yup';
-import { TextField, Button, Box, Typography, Autocomplete, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import PropTypes from 'prop-types';
 
-const <%= componentName %> = ({ defaultValues, multiSelectOptions, selectOptions }) => {
+<% if (types.some(type => type.type === 'text' || type.type === 'multi-select')) { %>
+import { TextField } from '@mui/material';
+<% } %>
+<% if (types.some(type => type.type === 'multi-select')) { %>
+import { Autocomplete } from '@mui/material';
+<% } %>
+<% if (types.some(type => type.type === 'select')) { %>
+import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+<% } %>
+<% if (types.some(type => type.type === 'select')) { %>
+import { Typography } from '@mui/material';
+<% } %>
+import { Button, Box } from '@mui/material';
+
+const <%= componentName %> = ({
+    defaultValues,
+    options,
+}) => {
     const [formData, setFormData] = useState({
       <% types.forEach(type => { 
          if (!type.primaryKey) { %>
@@ -12,7 +29,7 @@ const <%= componentName %> = ({ defaultValues, multiSelectOptions, selectOptions
               : type.yupType === 'number' ? "0"
               : type.yupType === 'date' ? "new Date()"
               : type.yupType === 'array' ? "[]" 
-              : type.yupType === 'object' ? "null" // Set custom objects to null
+              : type.yupType === 'object' ? "null"
               : "''") %>,
       <% } }) -%>
     });
@@ -65,7 +82,7 @@ const <%= componentName %> = ({ defaultValues, multiSelectOptions, selectOptions
                 <% if (type.type === 'multi-select') { %>
                   <Autocomplete
                     multiple
-                    options={multiSelectOptions['<%= type.name %>'] || []} // Use passed multi-select options
+                    options={options['<%= type.name %>'] || []} // Use options for multi-select
                     getOptionLabel={(option) => option.label}
                     onChange={(event, newValue) => {
                       setFormData({ ...formData, <%= type.name %>: newValue });
@@ -91,8 +108,8 @@ const <%= componentName %> = ({ defaultValues, multiSelectOptions, selectOptions
                       onChange={handleChange}
                       <% if (type.required) { %>required<% } %> // Mark Select as required if necessary
                     >
-                      {(selectOptions['<%= type.name %>'] || []).map(option => (
-                        <MenuItem key={option.value} value={option.value}>
+                      {(options['<%= type.name %>'] || []).map(option => (
+                        <MenuItem key={option.key} value={option.value}>
                           {option.label}
                         </MenuItem>
                       ))}
@@ -120,3 +137,24 @@ const <%= componentName %> = ({ defaultValues, multiSelectOptions, selectOptions
 };
 
 export default <%= componentName %>;
+
+// Define PropTypes for the component
+<%= componentName %>.propTypes = {
+    defaultValues: PropTypes.shape({
+        <% types.forEach(type => { 
+           if (!type.primaryKey) { %>
+        <%= type.name %>: PropTypes.<%= (type.yupType === 'string' ? 'string' 
+            : type.yupType === 'number' ? 'number'
+            : type.yupType === 'date' ? 'instanceOf(Date)'
+            : type.yupType === 'array' ? 'array'
+            : type.yupType === 'object' ? 'object'
+            : 'any') %><%= type.required ? '.isRequired' : '' %>,
+        <% } }) -%>
+    }),
+    options: PropTypes.objectOf(PropTypes.arrayOf(
+        PropTypes.shape({
+            label: PropTypes.string.isRequired,
+            value: PropTypes.any.isRequired
+        })
+    )).isRequired
+};

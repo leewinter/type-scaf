@@ -2,6 +2,7 @@ class Customer {
   @primaryKey
   customerId: number;
   @required
+  @optionsLabel
   name: string;
   age: number | null;
 
@@ -16,6 +17,7 @@ class Product {
   @primaryKey
   productId: number;
   @required
+  @optionsLabel
   name: string;
   price: number | null;
 

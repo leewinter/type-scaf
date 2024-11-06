@@ -1,5 +1,6 @@
 {
-    "generatedOutputDirectory": "src/components/generated",
-    "generatedComponentFileName" : "{{className}}Form",
-    "generatedStoryFileName": "{{className}}Form.stories"
+  "generatedOutputDirectory": "src/components/generated",
+  "generatedComponentFileName": "{{className}}Form",
+  "generatedStoryFileName": "{{className}}Form.stories",
+  "generateDebugTypes": true
 }

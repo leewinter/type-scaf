@@ -3,7 +3,7 @@ const path = require("path");
 const { resilientCopy } = require("../../utils/file-copy");
 
 module.exports = () => {
-  // Templates
+  // Component
   const componentTemplateTargetFilePath = path.join(
     process.cwd(),
     "type-scaf",
@@ -25,4 +25,24 @@ module.exports = () => {
     componentTemplateSourceFilePath,
     componentTemplateTargetFilePath
   );
+
+  // Stories
+  const componentStoriesTargetFilePath = path.join(
+    process.cwd(),
+    "type-scaf",
+    "templates",
+    "component.stories.ejs"
+  );
+
+  const componentStoriesSourceFilePath = path.join(
+    __dirname,
+    "..",
+    "..",
+    "init-files",
+    "templates",
+    "react",
+    "component.stories.ejs"
+  );
+
+  resilientCopy(componentStoriesSourceFilePath, componentStoriesTargetFilePath);
 };

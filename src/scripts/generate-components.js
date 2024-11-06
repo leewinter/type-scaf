@@ -2,12 +2,30 @@ const { Project } = require("ts-morph");
 const path = require("path");
 const ejs = require("ejs");
 const prettier = require("prettier");
+const fs = require("fs");
 const { resilientWrite } = require("../utils/file-copy");
+
+// Load settings from settings.json globally
+const settingsPath = path.join(
+  process.cwd(),
+  "type-scaf",
+  "config",
+  "settings.json"
+);
+
+const loadSettings = () => {
+  const settings = require(settingsPath);
+  return settings;
+};
 
 const typeMappings = {
   string: { htmlType: "text", yupType: "string" },
   number: { htmlType: "number", yupType: "number" },
   Date: { htmlType: "date", yupType: "date" },
+  boolean: { htmlType: "checkbox", yupType: "boolean" },
+  bigint: { htmlType: "number", yupType: "number" },
+  symbol: { htmlType: "text", yupType: "string" },
+  any: { htmlType: "text", yupType: "mixed" },
 };
 
 const parseTypeFromNode = (typeNode) => {
@@ -18,16 +36,21 @@ const parseTypeFromNode = (typeNode) => {
     return matchedType; // Return if found in typeMappings
   }
 
-  // Handle arrays generically
   if (typeText.endsWith("[]")) {
     return { htmlType: "multi-select", yupType: "array" };
   }
 
-  // Fallback for custom objects or unknown types
-  console.warn(
-    `No specific type mapping found for ${typeText}, defaulting to object.`
-  );
-  return { htmlType: "select", yupType: "object" }; // Fallback for custom objects
+  const type = typeNode.getType();
+  if (type.isClassOrInterface() || type.isObject()) {
+    const properties = type.getProperties();
+    if (properties.length) {
+      return { htmlType: "select", yupType: "object" };
+    }
+  } else if (type.isEnum()) {
+    return { htmlType: "select", yupType: "string" };
+  }
+
+  return { htmlType: "select", yupType: "object" };
 };
 
 const parseClassMembers = (classDeclaration) => {
@@ -52,14 +75,19 @@ const parseClassMembers = (classDeclaration) => {
 
             let propertyType = { htmlType: "text", yupType: "string" };
             let isPrimaryKey = false;
+            let isRequired = false;
 
-            // Check if the class property has a decorator like @primaryKey
             const classProperty = classDeclaration.getProperty(propertyName);
             if (classProperty) {
               const primaryKeyDecorator =
                 classProperty.getDecorator("primaryKey");
+              const requiredDecorator = classProperty.getDecorator("required");
+
               if (primaryKeyDecorator) {
                 isPrimaryKey = true;
+              }
+              if (requiredDecorator) {
+                isRequired = true;
               }
             }
 
@@ -76,7 +104,7 @@ const parseClassMembers = (classDeclaration) => {
                 propertyName.charAt(0).toUpperCase() + propertyName.slice(1),
               type: propertyType.htmlType,
               yupType: propertyType.yupType,
-              required: true,
+              required: isRequired,
               primaryKey: isPrimaryKey,
             });
           }
@@ -100,39 +128,74 @@ const renderComponent = (className, properties) => {
     types: properties,
   };
 
-  const templatePath = path.join(
+  const settings = loadSettings();
+
+  const componentTemplatePath = path.join(
     process.cwd(),
     "type-scaf",
     "templates",
     "component.ejs"
   );
 
-  ejs.renderFile(templatePath, componentData, async (err, str) => {
+  const storyTemplatePath = path.join(
+    process.cwd(),
+    "type-scaf",
+    "templates",
+    "component.stories.ejs"
+  );
+
+  // Render main component file
+  ejs.renderFile(componentTemplatePath, componentData, async (err, str) => {
     if (err) {
       console.error(`Error generating ${className} component:`, err);
       return;
     }
 
-    const settingsJsonPath = path.join(
-      process.cwd(),
-      "type-scaf",
-      "config",
-      "settings.json"
+    const outputFileName = settings.generatedComponentFileName.replace(
+      "{{className}}",
+      className
     );
-    const settingsJson = require(settingsJsonPath);
-
     const outputPath = path.join(
       process.cwd(),
-      settingsJson.generatedOutputDirectory,
-      componentData.componentName,
-      `${componentData.componentName}.jsx`
+      settings.generatedOutputDirectory,
+      className, // Create a folder with the className
+      `${outputFileName}.jsx`
     );
 
     const parser = getPrettierParser(outputPath);
     const formattedCode = await prettier.format(str, { parser });
 
     resilientWrite(outputPath, formattedCode);
-    console.log(`${componentData.componentName}.jsx generated successfully.`);
+    console.log(
+      `${outputFileName}.jsx generated successfully in ${className} folder.`
+    );
+  });
+
+  // Render Storybook file
+  ejs.renderFile(storyTemplatePath, componentData, async (err, str) => {
+    if (err) {
+      console.error(`Error generating ${className} Storybook file:`, err);
+      return;
+    }
+
+    const storyFileName = settings.generatedStoryFileName.replace(
+      "{{className}}",
+      className
+    );
+    const storyOutputPath = path.join(
+      process.cwd(),
+      settings.generatedOutputDirectory,
+      className, // Use className for the folder
+      `${storyFileName}.js`
+    );
+
+    const parser = getPrettierParser(storyOutputPath);
+    const formattedCode = await prettier.format(str, { parser });
+
+    resilientWrite(storyOutputPath, formattedCode);
+    console.log(
+      `${storyFileName}.js generated successfully in ${className} folder.`
+    );
   });
 };
 

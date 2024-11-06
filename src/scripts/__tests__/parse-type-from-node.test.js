@@ -31,9 +31,49 @@ describe("parseTypeFromNode", () => {
     expect(result).toEqual({ htmlType: "multi-select", yupType: "array" });
   });
 
-  it("should default to object for custom types", () => {
+  it("should return select and object for custom classes with properties", () => {
     const typeNode = project
-      .createSourceFile("temp.ts", "let test: Customer;", { overwrite: true })
+      .createSourceFile(
+        "temp.ts",
+        `
+        class Customer {
+          customerId: number;
+          name: string;
+        }
+        let test: Customer;
+        `,
+        { overwrite: true }
+      )
+      .getVariableDeclarationOrThrow("test")
+      .getTypeNodeOrThrow();
+    const result = parseTypeFromNode(typeNode);
+    expect(result).toEqual({ htmlType: "select", yupType: "object" });
+  });
+
+  it("should return select and string for enums", () => {
+    const typeNode = project
+      .createSourceFile(
+        "temp.ts",
+        `
+        enum Status {
+          Active = "ACTIVE",
+          Inactive = "INACTIVE"
+        }
+        let test: Status;
+        `,
+        { overwrite: true }
+      )
+      .getVariableDeclarationOrThrow("test")
+      .getTypeNodeOrThrow();
+    const result = parseTypeFromNode(typeNode);
+    expect(result).toEqual({ htmlType: "select", yupType: "string" });
+  });
+
+  it("should default to object for unknown types without properties", () => {
+    const typeNode = project
+      .createSourceFile("temp.ts", "let test: UnknownType;", {
+        overwrite: true,
+      })
       .getVariableDeclarationOrThrow("test")
       .getTypeNodeOrThrow();
     const result = parseTypeFromNode(typeNode);

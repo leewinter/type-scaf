@@ -1,6 +1,7 @@
 class Customer {
   @primaryKey
   customerId: number;
+  @required
   name: string;
   age: number | null;
 
@@ -11,10 +12,10 @@ class Customer {
   }
 }
 
-// test
 class Product {
   @primaryKey
   productId: number;
+  @required
   name: string;
   price: number | null;
 
@@ -28,9 +29,12 @@ class Product {
 class Order {
   @primaryKey
   orderId: number;
+  @required
   customer: Customer;
   products: Product[];
+  @required
   orderDate: Date;
+  @required
   totalAmount: number;
 
   constructor(

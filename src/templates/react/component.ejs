@@ -1,0 +1,118 @@
+import React, { useState } from 'react';
+import * as Yup from 'yup';
+import { TextField, Button, Box, Typography, Autocomplete } from '@mui/material';
+
+const <%= componentName %> = ({ defaultValues, multiSelectOptions }) => {
+    const [formData, setFormData] = useState({
+      <% types.forEach(type => { -%>
+        <%= type.name %>: defaultValues.<%= type.name %> !== undefined
+          ? defaultValues.<%= type.name %>
+          : <%- (type.yupType === 'string' ? "''" 
+              : type.yupType === 'number' ? "0"
+              : type.yupType === 'date' ? "new Date()"
+              : type.yupType === 'array' ? "[]" 
+              : type.yupType === 'object' ? "null" // Set custom objects to null
+              : "''") %>,
+      <% }) -%>
+    });
+
+    const [errors, setErrors] = useState({});
+
+    // Define Yup validation schema
+    const validationSchema = Yup.object().shape({
+        <% types.forEach(type => { -%>
+        <%= type.name %>: Yup.<%= type.yupType -%>()
+            <% if (type.required) { %>.required('<%= type.label %> is required')<% } -%>
+            <% if (type.minLength) { %>.min(<%= type.minLength %>, '<%= type.label %> must be at least <%= type.minLength %> characters')<% } -%>
+            <% if (type.maxLength) { %>.max(<%= type.maxLength %>, '<%= type.label %> must be at most <%= type.maxLength %> characters')<% } -%>
+            <% if (type.min) { %>.min(<%= type.min %>, '<%= type.label %> must be greater than <%= type.min %>')<% } -%>
+            <% if (type.max) { %>.max(<%= type.max %>, '<%= type.label %> must be less than <%= type.max %>')<% } -%>,
+        <% }) -%>
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            // Validate form data
+            await validationSchema.validate(formData, { abortEarly: false });
+            setErrors({});
+            // Perform CRUD operation after successful validation
+            console.log('Form data:', formData);
+        } catch (validationErrors) {
+            const formattedErrors = {};
+            validationErrors.inner.forEach(error => {
+                formattedErrors[error.path] = error.message;
+            });
+            setErrors(formattedErrors);
+        }
+    };
+
+    return (
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <% types.forEach(type => { %>
+                <% if (type.type === 'multi-select') { %>
+                  <Autocomplete
+                    multiple
+                    options={multiSelectOptions['<%= type.name %>'] || []} // Use passed multi-select options
+                    getOptionLabel={(option) => option.label}
+                    onChange={(event, newValue) => {
+                      setFormData({ ...formData, <%= type.name %>: newValue });
+                    }}
+                    value={formData.<%= type.name %>}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="<%= type.label %>"
+                        error={!!errors.<%= type.name %>}
+                        helperText={errors.<%= type.name %> || ''}
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                <% } else if (type.primaryKey) { %>
+                  <Autocomplete
+                    options={multiSelectOptions['<%= type.name %>'] || []} // Populate primary key options here
+                    getOptionLabel={(option) => option.label}
+                    onChange={(event, newValue) => {
+                      setFormData({ ...formData, <%= type.name %>: newValue });
+                    }}
+                    value={formData.<%= type.name %>}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="<%= type.label %>"
+                        error={!!errors.<%= type.name %>}
+                        helperText={errors.<%= type.name %> || ''}
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                <% } else { %>
+                  <TextField
+                    fullWidth
+                    label="<%= type.label %>"
+                    name="<%= type.name %>"
+                    type="<%= type.type %>"
+                    value={formData.<%= type.name %>}
+                    onChange={handleChange}
+                    error={!!errors.<%= type.name %>}
+                    helperText={errors.<%= type.name %> || ''}
+                    variant="outlined"
+                  />
+                <% } %>
+              <% }) %>
+            <Button type="submit" variant="contained" color="primary">Submit</Button>
+        </Box>
+    );
+};
+
+export default <%= componentName %>;

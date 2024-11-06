@@ -1,0 +1,23 @@
+{
+  "name": "type-scaf",
+  "version": "0.0.6",
+  "description": "Scaffold typescript types to react components",
+  "main": "index.js",
+  "bin": {
+    "type-scaf": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lee.winter@boxspark.co.uk",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "ejs": "^3.1.10",
+    "ts-morph": "^24.0.0"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
+}

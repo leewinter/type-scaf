@@ -1,15 +1,10 @@
-const fs = require("fs");
 const path = require("path");
 const { resilientCopy } = require("../../utils/file-copy");
+const { typesPath, settingsPath } = require("../../file-processing/files");
 
 module.exports = () => {
   // Config
-  const packageTypesTargetFilePath = path.join(
-    process.cwd(),
-    "type-scaf",
-    "config",
-    "package-types.ts"
-  );
+  const packageTypesTargetFilePath = typesPath;
 
   const packageTypesSourceFilePath = path.join(
     __dirname,
@@ -23,12 +18,7 @@ module.exports = () => {
   resilientCopy(packageTypesSourceFilePath, packageTypesTargetFilePath);
 
   // Settings
-  const packageSettingsTargetFilePath = path.join(
-    process.cwd(),
-    "type-scaf",
-    "config",
-    "settings.json"
-  );
+  const packageSettingsTargetFilePath = settingsPath;
 
   const packageSettingsSourceFilePath = path.join(
     __dirname,

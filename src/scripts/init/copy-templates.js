@@ -1,15 +1,14 @@
 const fs = require("fs");
 const path = require("path");
 const { resilientCopy } = require("../../utils/file-copy");
+const {
+  componentTemplatePath,
+  storyTemplatePath,
+} = require("../../file-processing/files");
 
 module.exports = () => {
   // Component
-  const componentTemplateTargetFilePath = path.join(
-    process.cwd(),
-    "type-scaf",
-    "templates",
-    "component.ejs"
-  );
+  const componentTemplateTargetFilePath = componentTemplatePath;
 
   const componentTemplateSourceFilePath = path.join(
     __dirname,
@@ -27,12 +26,7 @@ module.exports = () => {
   );
 
   // Stories
-  const componentStoriesTargetFilePath = path.join(
-    process.cwd(),
-    "type-scaf",
-    "templates",
-    "component.stories.ejs"
-  );
+  const componentStoriesTargetFilePath = storyTemplatePath;
 
   const componentStoriesSourceFilePath = path.join(
     __dirname,

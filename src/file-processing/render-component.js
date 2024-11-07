@@ -6,6 +6,8 @@ const getPrettierParser = require("./prettier-parse");
 const prettier = require("prettier");
 const { resilientWrite } = require("../utils/file-copy");
 
+const { componentTemplatePath, storyTemplatePath } = require("./files");
+
 const renderComponent = (className, properties) => {
   const componentData = {
     componentName: `${className}Form`,
@@ -83,20 +85,6 @@ const renderComponent = (className, properties) => {
     }
   });
 
-  const componentTemplatePath = path.join(
-    process.cwd(),
-    "type-scaf",
-    "templates",
-    "component.ejs"
-  );
-
-  const storyTemplatePath = path.join(
-    process.cwd(),
-    "type-scaf",
-    "templates",
-    "component.stories.ejs"
-  );
-
   const outputDirectory = path.join(
     process.cwd(),
     settings.generatedOutputDirectory,
@@ -120,7 +108,7 @@ const renderComponent = (className, properties) => {
     const formattedCode = await prettier.format(str, { parser });
 
     resilientWrite(outputPath, formattedCode);
-    console.log(
+    console.info(
       `${outputFileName}.jsx generated successfully in ${className} folder.`
     );
   });
@@ -148,7 +136,7 @@ const renderComponent = (className, properties) => {
       const formattedCode = await prettier.format(str, { parser });
 
       resilientWrite(storyOutputPath, formattedCode);
-      console.log(
+      console.info(
         `${storyFileName}.jsx generated successfully in ${className} folder.`
       );
     }

@@ -7,7 +7,9 @@
     "type-scaf": "./index.js"
   },
   "scripts": {
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --silent=false"
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --silent=false",
+    "scaf-init": "node index.js init -t",
+    "scaf-transform": "node index.js transform -t"
   },
   "author": "lee.winter@boxspark.co.uk",
   "license": "ISC",
@@ -15,7 +17,8 @@
     "commander": "^12.1.0",
     "ejs": "^3.1.10",
     "prettier": "^3.3.3",
-    "ts-morph": "^24.0.0"
+    "ts-morph": "^24.0.0",
+    "winston": "^3.16.0"
   },
   "keywords": [],
   "devDependencies": {

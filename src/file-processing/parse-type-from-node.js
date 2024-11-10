@@ -1,51 +1,110 @@
 const typeMappings = require("./type-mappings");
+const logger = require("../utils/logger");
+const { parseSubProperties } = require("./parse-helpers");
 
-const parseTypeFromNode = (typeNode) => {
-  const parseClassMembers = require("./parse-class-members"); // Lazy load to prevent circular dependency
-  const typeText = typeNode.getText().replace(/\s*\|\s*null/g, ""); // Strip "| null" for matching
-  let matchedType = typeMappings[typeText];
+/**
+ * Parses the type from a given type node.
+ *
+ * @param {TypeNode} typeNode - The TypeScript type node to be parsed.
+ * @param {Function} parseClassMembers - Function to parse class members, passed as a parameter to avoid circular dependencies.
+ * @returns {Object} An object containing type information for HTML and validation.
+ */
+const parseTypeFromNode = (typeNode, parseClassMembers) => {
+  try {
+    logger.info(`Parsing type from node: ${typeNode.getText()}`);
 
-  if (matchedType) {
-    return matchedType; // Return if found in typeMappings
-  }
+    // Remove nullable unions (e.g., "| null") to get the core type
+    const typeText = typeNode.getText().replace(/\s*\|\s*null/g, "");
 
-  const type = typeNode.getType();
-
-  // Handle multi-select type by checking if it's an array
-  if (type.isArray()) {
-    const elementType = type.getArrayElementType();
-    let subProperties = null;
-
-    // Check if the element type is a class or interface
-    if (
-      elementType &&
-      (elementType.isClassOrInterface() || elementType.isObject())
-    ) {
-      const innerTypeSymbol = elementType.getSymbol();
-      if (innerTypeSymbol) {
-        subProperties = parseClassMembers(innerTypeSymbol.getDeclarations()[0]);
-      }
+    // Check if the type is directly mapped in typeMappings
+    const matchedType = typeMappings[typeText];
+    if (matchedType) {
+      logger.info(
+        `Matched type found in typeMappings for "${typeText}": ${JSON.stringify(matchedType)}`
+      );
+      return matchedType;
     }
 
-    return { htmlType: "multi-select", yupType: "array", subProperties };
-  }
+    // Get the type from the typeNode
+    const type = typeNode.getType();
+    if (!type) {
+      throw new Error(`Could not resolve type for typeNode "${typeText}".`);
+    }
 
-  // Handle select type if it's a class or object
-  if (type.isClassOrInterface() || type.isObject()) {
-    const properties = type.getProperties();
-    if (properties.length) {
-      const innerTypeSymbol = type.getSymbol();
-      let subProperties = null;
-      if (innerTypeSymbol) {
-        subProperties = parseClassMembers(innerTypeSymbol.getDeclarations()[0]);
+    // Handle array types as multi-select
+    if (type.isArray()) {
+      logger.info(`Type "${typeText}" is identified as an array.`);
+      const elementType = type.getArrayElementType();
+      if (!elementType) {
+        throw new Error(
+          `Could not resolve element type for array "${typeText}".`
+        );
       }
+
+      let subProperties = null;
+
+      // If the array element is a class or object, get its properties
+      if (elementType.isClassOrInterface() || elementType.isObject()) {
+        const elementTypeSymbol = elementType.getSymbol();
+        if (elementTypeSymbol) {
+          try {
+            subProperties = parseSubProperties(
+              elementTypeSymbol,
+              parseClassMembers
+            );
+          } catch (subPropertiesError) {
+            logger.error(
+              `Failed to parse sub-properties for array element "${typeText}":`,
+              subPropertiesError.message
+            );
+            throw subPropertiesError;
+          }
+        } else {
+          logger.error(
+            `Error: Could not resolve symbol for element type in array "${typeText}".`
+          );
+          throw new Error(
+            `Could not resolve symbol for element type in array "${typeText}".`
+          );
+        }
+      }
+
+      return { htmlType: "multi-select", yupType: "array", subProperties };
+    }
+
+    // Handle class or object types
+    if (type.isClassOrInterface() || type.isObject()) {
+      logger.info(`Type "${typeText}" is identified as a class or object.`);
+      const typeSymbol = type.getSymbol();
+      if (!typeSymbol) {
+        throw new Error(
+          `Could not resolve symbol for class or object type "${typeText}".`
+        );
+      }
+
+      const subProperties = parseSubProperties(typeSymbol, parseClassMembers);
       return { htmlType: "select", yupType: "object", subProperties };
     }
-  } else if (type.isEnum()) {
-    return { htmlType: "select", yupType: "string" };
-  }
 
-  return { htmlType: "select", yupType: "object" };
+    // Handle enum types as select dropdowns
+    if (type.isEnum()) {
+      logger.info(`Type "${typeText}" is identified as an enum.`);
+      return { htmlType: "select", yupType: "string" };
+    }
+
+    // Default case: handle as a select type
+    logger.warn(
+      `Type "${typeText}" is not directly matched; defaulting to select type.`
+    );
+    return { htmlType: "select", yupType: "object" };
+  } catch (error) {
+    logger.error(
+      `Error in parseTypeFromNode for type node "${typeNode.getText()}":`,
+      error.message || error,
+      error.stack
+    );
+    throw error; // Rethrow error so it can be caught and logged at a higher level.
+  }
 };
 
 module.exports = parseTypeFromNode;

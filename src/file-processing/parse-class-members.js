@@ -1,36 +1,52 @@
 const parseTypeFromNode = require("./parse-type-from-node");
+const logger = require("../utils/logger");
 
+/**
+ * Parses class members from a given class declaration.
+ *
+ * @param {ClassDeclaration} classDeclaration - The TypeScript class declaration.
+ * @returns {Array} An array of properties parsed from the class.
+ */
 const parseClassMembers = (classDeclaration) => {
   const properties = [];
   const constructor = classDeclaration.getConstructors()[0];
 
   if (!constructor) {
-    console.warn("No constructor found for class:", classDeclaration.getName());
+    logger.warn(
+      `No constructor found for class: ${classDeclaration.getName()}`
+    );
     return properties;
   }
 
-  if (constructor) {
-    const parameters = constructor.getParameters();
-    const statements = constructor.getBody().getStatements();
+  const parameters = constructor.getParameters();
+  const statements = constructor.getBody().getStatements();
 
-    statements.forEach((statement) => {
-      if (statement.getKindName() === "ExpressionStatement") {
-        const expression = statement.getExpression();
-        if (expression.getKindName() === "BinaryExpression") {
-          const leftSide = expression.getLeft().getText();
+  statements.forEach((statement) => {
+    if (statement.getKindName() === "ExpressionStatement") {
+      const expression = statement.getExpression();
+      if (expression.getKindName() === "BinaryExpression") {
+        const leftSide = expression.getLeft().getText();
 
-          if (leftSide.startsWith("this.")) {
-            const propertyName = leftSide.replace("this.", "");
-            const matchingParam = parameters.find(
-              (param) => param.getName() === propertyName
+        if (leftSide.startsWith("this.")) {
+          const propertyName = leftSide.replace("this.", "");
+          const matchingParam = parameters.find(
+            (param) => param.getName() === propertyName
+          );
+
+          if (!matchingParam) {
+            logger.warn(
+              `No matching parameter found for property "${propertyName}" in class "${classDeclaration.getName()}"`
             );
+            return; // Skip if there is no matching parameter
+          }
 
-            let propertyType = { htmlType: "text", yupType: "string" };
-            let isPrimaryKey = false;
-            let isRequired = false;
-            let isOptionsLabel = false;
-            let subProperties = null;
+          let propertyType = { htmlType: "text", yupType: "string" };
+          let isPrimaryKey = false;
+          let isRequired = false;
+          let isOptionsLabel = false;
+          let subProperties = null;
 
+          try {
             const classProperty = classDeclaration.getProperty(propertyName);
             if (classProperty) {
               const primaryKeyDecorator =
@@ -39,57 +55,37 @@ const parseClassMembers = (classDeclaration) => {
               const optionsLabelDecorator =
                 classProperty.getDecorator("optionsLabel");
 
-              if (primaryKeyDecorator) {
-                isPrimaryKey = true;
-              }
-              if (requiredDecorator) {
-                isRequired = true;
-              }
-              if (optionsLabelDecorator) {
-                isOptionsLabel = true;
-              }
+              isPrimaryKey = !!primaryKeyDecorator;
+              isRequired = !!requiredDecorator;
+              isOptionsLabel = !!optionsLabelDecorator;
             }
 
-            if (matchingParam) {
-              const typeNode = matchingParam.getTypeNode();
-              if (typeNode) {
-                propertyType = parseTypeFromNode(typeNode);
-
-                // Check if the type is a class or interface and parse sub-properties
-                if (
-                  (propertyType.htmlType === "select" ||
-                    propertyType.htmlType === "multi-select") &&
-                  typeNode.getType().isClassOrInterface()
-                ) {
-                  const innerType = typeNode.getType();
-                  const innerDeclarations = innerType
-                    .getSymbol()
-                    .getDeclarations();
-
-                  if (innerDeclarations.length > 0) {
-                    // Recursively parse inner class or interface to get its properties
-                    subProperties = parseClassMembers(innerDeclarations[0]);
-                  }
-                }
-              }
+            const typeNode = matchingParam.getTypeNode();
+            if (typeNode) {
+              propertyType = parseTypeFromNode(typeNode, parseClassMembers);
             }
-
-            properties.push({
-              name: propertyName,
-              label:
-                propertyName.charAt(0).toUpperCase() + propertyName.slice(1),
-              type: propertyType.htmlType,
-              yupType: propertyType.yupType,
-              required: isRequired,
-              primaryKey: isPrimaryKey,
-              optionsLabel: isOptionsLabel,
-              properties: subProperties, // Use the populated subProperties
-            });
+          } catch (error) {
+            logger.error(
+              `Error parsing type for property "${propertyName}" in class "${classDeclaration.getName()}":`,
+              error.message || error
+            );
+            return; // Skip this property if there is an error
           }
+
+          properties.push({
+            name: propertyName,
+            label: propertyName.charAt(0).toUpperCase() + propertyName.slice(1),
+            type: propertyType.htmlType,
+            yupType: propertyType.yupType,
+            required: isRequired,
+            primaryKey: isPrimaryKey,
+            optionsLabel: isOptionsLabel,
+            properties: subProperties,
+          });
         }
       }
-    });
-  }
+    }
+  });
 
   return properties;
 };

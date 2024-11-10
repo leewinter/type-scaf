@@ -1,27 +1,27 @@
-const parseClassMembers = require("./parse-class-members");
-const renderComponent = require("./render-component");
+const logger = require("../utils/logger");
 
-const processNode = (node) => {
+const processNode = (node, parseClassMembers, parseTypeFromNode) => {
   const kindName = node.getKindName();
 
   if (kindName === "EndOfFileToken") {
-    console.warn(`Skipping ${kindName} node.`);
+    logger.warn(`Skipping ${kindName} node.`);
     return;
   }
 
   if (kindName === "ClassDeclaration") {
     const className = node.getName();
-    console.log(`Processing class: ${className}`);
+    logger.info(`Processing class: ${className}`);
 
-    const properties = parseClassMembers(node);
+    const properties = parseClassMembers(node, parseTypeFromNode);
 
     if (properties.length > 0) {
+      const renderComponent = require("../file-processing/render-component");
       renderComponent(className, properties);
     } else {
-      console.warn(`No properties found for class ${className}`);
+      logger.warn(`No properties found for class ${className}`);
     }
   } else {
-    console.log(`Unhandled node kind: ${kindName}`);
+    logger.info(`Unhandled node kind: ${kindName}`);
   }
 };
 

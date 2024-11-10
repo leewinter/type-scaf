@@ -1,8 +1,10 @@
 const processNode = require("../process-node");
+const logger = require("../../utils/logger");
 const parseClassMembers = require("../parse-class-members");
 const renderComponent = require("../render-component");
 
-// Mocking the imported modules
+// Mock the dependencies
+jest.mock("../../utils/logger");
 jest.mock("../parse-class-members");
 jest.mock("../render-component");
 
@@ -17,80 +19,66 @@ describe("processNode", () => {
     };
   });
 
-  it('should skip "EndOfFileToken" nodes', () => {
+  it("should log a warning when the node is EndOfFileToken", () => {
     mockNode.getKindName.mockReturnValue("EndOfFileToken");
 
-    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
+    processNode(mockNode, parseClassMembers, jest.fn());
 
-    processNode(mockNode);
-
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      "Skipping EndOfFileToken node."
-    );
+    expect(logger.warn).toHaveBeenCalledWith("Skipping EndOfFileToken node.");
     expect(parseClassMembers).not.toHaveBeenCalled();
     expect(renderComponent).not.toHaveBeenCalled();
-
-    consoleWarnSpy.mockRestore();
   });
 
-  it('should process "ClassDeclaration" nodes with properties', () => {
+  it("should process ClassDeclaration nodes with properties", () => {
     mockNode.getKindName.mockReturnValue("ClassDeclaration");
     mockNode.getName.mockReturnValue("TestClass");
 
     const mockProperties = [{ name: "testProperty" }];
     parseClassMembers.mockReturnValue(mockProperties);
 
-    const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
-
-    processNode(mockNode);
+    processNode(mockNode, parseClassMembers, jest.fn());
 
     expect(mockNode.getKindName).toHaveBeenCalled();
     expect(mockNode.getName).toHaveBeenCalled();
-    expect(consoleLogSpy).toHaveBeenCalledWith("Processing class: TestClass");
-    expect(parseClassMembers).toHaveBeenCalledWith(mockNode);
+    expect(logger.info).toHaveBeenCalledWith("Processing class: TestClass");
+    expect(parseClassMembers).toHaveBeenCalledWith(
+      mockNode,
+      expect.any(Function)
+    );
     expect(renderComponent).toHaveBeenCalledWith("TestClass", mockProperties);
-
-    consoleLogSpy.mockRestore();
   });
 
-  it('should log a warning when "ClassDeclaration" has no properties', () => {
+  it("should log a warning if ClassDeclaration has no properties", () => {
     mockNode.getKindName.mockReturnValue("ClassDeclaration");
     mockNode.getName.mockReturnValue("EmptyClass");
 
     parseClassMembers.mockReturnValue([]);
 
-    const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
-    const consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
-
-    processNode(mockNode);
+    processNode(mockNode, parseClassMembers, jest.fn());
 
     expect(mockNode.getKindName).toHaveBeenCalled();
     expect(mockNode.getName).toHaveBeenCalled();
-    expect(consoleLogSpy).toHaveBeenCalledWith("Processing class: EmptyClass");
-    expect(parseClassMembers).toHaveBeenCalledWith(mockNode);
+    expect(logger.info).toHaveBeenCalledWith("Processing class: EmptyClass");
+    expect(parseClassMembers).toHaveBeenCalledWith(
+      mockNode,
+      expect.any(Function)
+    );
     expect(renderComponent).not.toHaveBeenCalled();
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
+    expect(logger.warn).toHaveBeenCalledWith(
       "No properties found for class EmptyClass"
     );
-
-    consoleLogSpy.mockRestore();
-    consoleWarnSpy.mockRestore();
   });
 
-  it("should handle unsupported node kinds", () => {
+  it("should log info for unhandled node kinds", () => {
     mockNode.getKindName.mockReturnValue("UnsupportedKind");
 
-    const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
-
-    processNode(mockNode);
+    processNode(mockNode, parseClassMembers, jest.fn());
 
     expect(mockNode.getKindName).toHaveBeenCalled();
-    expect(consoleLogSpy).toHaveBeenCalledWith(
+    expect(logger.info).toHaveBeenCalledWith(
       "Unhandled node kind: UnsupportedKind"
     );
     expect(parseClassMembers).not.toHaveBeenCalled();
     expect(renderComponent).not.toHaveBeenCalled();
-
-    consoleLogSpy.mockRestore();
   });
 });

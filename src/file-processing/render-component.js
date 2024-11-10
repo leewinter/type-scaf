@@ -5,10 +5,13 @@ const loadSettings = require("./load-settings");
 const getPrettierParser = require("./prettier-parse");
 const prettier = require("prettier");
 const { resilientWrite } = require("../utils/file-copy");
+const logger = require("../utils/logger");
 
 const { componentTemplatePath, storyTemplatePath } = require("./files");
 
 const renderComponent = (className, properties) => {
+  logger.info(`Starting to render component for class: ${className}`);
+
   const componentData = {
     componentName: `${className}Form`,
     types: properties,
@@ -19,6 +22,10 @@ const renderComponent = (className, properties) => {
   // Generate default values and options before rendering the template
   const defaultValues = {};
   const options = {};
+
+  logger.info(
+    `Generating mock data and options for properties of class: ${className}`
+  );
 
   const generateMockData = (subProperties, index = 0) => {
     const mockData = {};
@@ -64,6 +71,7 @@ const renderComponent = (className, properties) => {
 
   properties.forEach((type) => {
     if (!type.primaryKey) {
+      logger.info(`Generating default value for property: ${type.name}`);
       // Generate default values based on type
       defaultValues[type.name] =
         type.yupType === "string"
@@ -80,6 +88,7 @@ const renderComponent = (className, properties) => {
 
       // Generate options for select and multi-select types
       if (type.type === "multi-select" || type.type === "select") {
+        logger.info(`Generating options for property: ${type.name}`);
         options[type.name] = generateOptions(type.properties || []);
       }
     }
@@ -94,7 +103,7 @@ const renderComponent = (className, properties) => {
   // Render main component file
   ejs.renderFile(componentTemplatePath, componentData, async (err, str) => {
     if (err) {
-      console.error(`Error generating ${className} component:`, err);
+      logger.error(`Error generating ${className} component:`, err);
       return;
     }
 
@@ -104,13 +113,20 @@ const renderComponent = (className, properties) => {
     );
     const outputPath = path.join(outputDirectory, `${outputFileName}.jsx`);
 
-    const parser = getPrettierParser(outputPath);
-    const formattedCode = await prettier.format(str, { parser });
+    try {
+      const parser = getPrettierParser(outputPath);
+      const formattedCode = await prettier.format(str, { parser });
 
-    resilientWrite(outputPath, formattedCode);
-    console.info(
-      `${outputFileName}.jsx generated successfully in ${className} folder.`
-    );
+      resilientWrite(outputPath, formattedCode);
+      logger.info(
+        `${outputFileName}.jsx generated successfully in ${className} folder.`
+      );
+    } catch (error) {
+      logger.error(
+        `Error formatting or writing component file for ${className}:`,
+        error
+      );
+    }
   });
 
   // Render Storybook file with precomputed default values and options
@@ -119,7 +135,7 @@ const renderComponent = (className, properties) => {
     { ...componentData, defaultValues, options },
     async (err, str) => {
       if (err) {
-        console.error(`Error generating ${className} Storybook file:`, err);
+        logger.error(`Error generating ${className} Storybook file:`, err);
         return;
       }
 
@@ -132,13 +148,20 @@ const renderComponent = (className, properties) => {
         `${storyFileName}.jsx`
       );
 
-      const parser = getPrettierParser(storyOutputPath);
-      const formattedCode = await prettier.format(str, { parser });
+      try {
+        const parser = getPrettierParser(storyOutputPath);
+        const formattedCode = await prettier.format(str, { parser });
 
-      resilientWrite(storyOutputPath, formattedCode);
-      console.info(
-        `${storyFileName}.jsx generated successfully in ${className} folder.`
-      );
+        resilientWrite(storyOutputPath, formattedCode);
+        logger.info(
+          `${storyFileName}.jsx generated successfully in ${className} folder.`
+        );
+      } catch (error) {
+        logger.error(
+          `Error formatting or writing Storybook file for ${className}:`,
+          error
+        );
+      }
     }
   );
 
@@ -152,19 +175,21 @@ const renderComponent = (className, properties) => {
 
     fs.mkdir(outputDirectory, { recursive: true }, (err) => {
       if (err) {
-        console.error(`Error creating output directory for ${className}:`, err);
+        logger.error(`Error creating output directory for ${className}:`, err);
         return;
       }
 
       fs.writeFile(debugFilePath, JSON.stringify(debugData, null, 2), (err) => {
         if (err) {
-          console.error(`Error generating debug file for ${className}:`, err);
+          logger.error(`Error generating debug file for ${className}:`, err);
         } else {
-          console.log(`${className}.debug.json generated successfully.`);
+          logger.info(`${className}.debug.json generated successfully.`);
         }
       });
     });
   }
+
+  logger.info(`Completed rendering component for class: ${className}`);
 };
 
 module.exports = renderComponent;

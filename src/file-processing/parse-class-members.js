@@ -62,7 +62,13 @@ const parseClassMembers = (classDeclaration) => {
 
             const typeNode = matchingParam.getTypeNode();
             if (typeNode) {
-              propertyType = parseTypeFromNode(typeNode, parseClassMembers);
+              const parsedType = parseTypeFromNode(typeNode, parseClassMembers);
+              propertyType = parsedType;
+
+              // Extract subProperties from the parsedType if they exist
+              if (parsedType.subProperties) {
+                subProperties = parsedType.subProperties;
+              }
             }
           } catch (error) {
             logger.error(

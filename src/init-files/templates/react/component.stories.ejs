@@ -10,8 +10,24 @@ export default {
   },
 };
 
+// Utility function to parse default values for component props
+const parseDefaultValues = (values) => {
+  const parsedValues = { ...values };
+  for (const key in parsedValues) {
+    if (Object.prototype.hasOwnProperty.call(parsedValues, key)) {
+      const value = parsedValues[key];
+      if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+        parsedValues[key] = new Date(value);
+      }
+    }
+  }
+  return parsedValues;
+};
+
 const Template = (args) => {
-  const [data, setData] = useState(args.defaultValues);
+  // Use Date instances for defaultValues when passing them to the component
+  const initialValues = parseDefaultValues(args.defaultValues);
+  const [data, setData] = useState(initialValues);
 
   const handleChange = (newData) => {
     setData(newData);

@@ -100,6 +100,8 @@ module.exports = (testing = false) => {
       "@mui/material", // Material UI core library
       "@emotion/react", // Emotion library for styling
       "@emotion/styled", // Emotion styled components
+      "@mui/x-date-pickers",
+      "date-fns@2.28.0",
     ];
 
     // Install the necessary dependencies

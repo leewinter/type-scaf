@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-
+<% if (types.some(type => type.yupType === 'date')) { %>
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers';
+<% } %>
 <% if (types.some(type => type.type === 'text' || type.type === 'multi-select')) { %>
 import { TextField } from '@mui/material';
 <% } %>
@@ -76,6 +80,9 @@ const <%= componentName %> = ({
     };
 
     return (
+        <% if (types.some(type => type.yupType === 'date')) { %>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <% } %>
         <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <% types.forEach(type => { 
                if (!type.primaryKey) { %>
@@ -116,6 +123,24 @@ const <%= componentName %> = ({
                     </Select>
                     <Typography variant="caption" color="error">{errors.<%= type.name %> || ''}</Typography>
                   </FormControl>
+                <% } else if (type.yupType === 'date') { %>
+                  <DatePicker
+                    label="<%= type.label %>"
+                    value={formData.<%= type.name %>}
+                    onChange={(newValue) => {
+                      setFormData({ ...formData, <%= type.name %>: newValue });
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        error={!!errors.<%= type.name %>}
+                        helperText={errors.<%= type.name %> || ''}
+                        variant="outlined"
+                        fullWidth
+                        required={!!type.required}
+                      />
+                    )}
+                  />
                 <% } else { %>
                   <TextField
                     fullWidth
@@ -133,6 +158,9 @@ const <%= componentName %> = ({
               <% } }) %>
             <Button type="submit" variant="contained" color="primary">Submit</Button>
         </Box>
+        <% if (types.some(type => type.yupType === 'date')) { %>
+        </LocalizationProvider>
+        <% } %>
     );
 };
 

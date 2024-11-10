@@ -46,7 +46,7 @@ const renderComponent = (className, properties) => {
   };
 
   const generateOptions = (subProperties) => {
-    return Array(2)
+    return Array(3)
       .fill(null)
       .map((_, index) => {
         const mockObject = generateMockData(subProperties, index);

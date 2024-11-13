@@ -1,4 +1,5 @@
 const logger = require("../utils/logger");
+const renderComponent = require("../file-processing/render-component");
 
 const processNode = (node, parseClassMembers, parseTypeFromNode) => {
   const kindName = node.getKindName();
@@ -14,8 +15,7 @@ const processNode = (node, parseClassMembers, parseTypeFromNode) => {
 
     const properties = parseClassMembers(node, parseTypeFromNode);
 
-    if (properties.length > 0) {
-      const renderComponent = require("../file-processing/render-component");
+    if (properties.length > 0) {      
       renderComponent(className, properties);
     } else {
       logger.warn(`No properties found for class ${className}`);

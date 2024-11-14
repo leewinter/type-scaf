@@ -5,11 +5,7 @@ const program = new Command();
 const logger = require("./src/utils/logger.js");
 
 const packageJson = require("./package.json");
-const {
-  initPackage,
-  copyConfig,
-  copyTemplates,
-} = require("./src/scripts/init");
+const { initPackage, copyDefaultFiles } = require("./src/scripts/init");
 const { generateComponents } = require("./src/scripts/generate-components.js");
 
 // Define the version of your package
@@ -25,10 +21,9 @@ const handleInit = (options) => {
   try {
     logger.info(`Running init command...${options.test ? " (Test Mode)" : ""}`);
     initPackage(options.test);
-    copyConfig(options.test);
-    copyTemplates(options.test);
+    copyDefaultFiles(options.test);
   } catch (error) {
-    logger.error("Error during init:", error.message);
+    logger.error("Error during init:", error);
     process.exit(1);
   }
 };
@@ -40,7 +35,7 @@ const handleTransform = (options) => {
     );
     generateComponents(options.test);
   } catch (error) {
-    logger.error("Error during transform:", error.message);
+    logger.error("Error during transform:", error);
     process.exit(1);
   }
 };

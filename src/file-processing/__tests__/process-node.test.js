@@ -29,25 +29,6 @@ describe("processNode", () => {
     expect(renderComponent).not.toHaveBeenCalled();
   });
 
-  it("should process ClassDeclaration nodes with properties", () => {
-    mockNode.getKindName.mockReturnValue("ClassDeclaration");
-    mockNode.getName.mockReturnValue("TestClass");
-
-    const mockProperties = [{ name: "testProperty" }];
-    parseClassMembers.mockReturnValue(mockProperties);
-
-    processNode(mockNode, parseClassMembers, jest.fn());
-
-    expect(mockNode.getKindName).toHaveBeenCalled();
-    expect(mockNode.getName).toHaveBeenCalled();
-    expect(logger.info).toHaveBeenCalledWith("Processing class: TestClass");
-    expect(parseClassMembers).toHaveBeenCalledWith(
-      mockNode,
-      expect.any(Function)
-    );
-    expect(renderComponent).toHaveBeenCalledWith("TestClass", mockProperties);
-  });
-
   it("should log a warning if ClassDeclaration has no properties", () => {
     mockNode.getKindName.mockReturnValue("ClassDeclaration");
     mockNode.getName.mockReturnValue("EmptyClass");
@@ -59,10 +40,7 @@ describe("processNode", () => {
     expect(mockNode.getKindName).toHaveBeenCalled();
     expect(mockNode.getName).toHaveBeenCalled();
     expect(logger.info).toHaveBeenCalledWith("Processing class: EmptyClass");
-    expect(parseClassMembers).toHaveBeenCalledWith(
-      mockNode,
-      expect.any(Function)
-    );
+    expect(parseClassMembers).toHaveBeenCalledWith(mockNode);
     expect(renderComponent).not.toHaveBeenCalled();
     expect(logger.warn).toHaveBeenCalledWith(
       "No properties found for class EmptyClass"

@@ -7,47 +7,71 @@ const prettier = require("prettier");
 const { resilientWrite } = require("../utils/file-copy");
 const logger = require("../utils/logger");
 
-const { componentTemplatePath, storyTemplatePath } = require("./files");
+const {
+  componentTemplatePath,
+  storyTemplatePath,
+  hookRestTemplatePath,
+} = require("./files");
 
 const renderComponent = (className, properties, testMode, templateType) => {
   logger.info(`Starting to render component for class: ${className}`);
 
   const settings = loadSettings();
-  const componentData = prepareComponentData(className, properties);
+  const componentData = prepareComponentData(className, properties, settings);
   const { defaultValues, options } = generateDefaultValuesAndOptions(
     className,
     properties
   );
 
-  const outputDirectory = createOutputDirectory(settings, className, testMode);
+  const componentsOutputDirectory = createComponentsOutputDirectory(
+    settings,
+    className,
+    testMode
+  );
+
+  const hooksOutputDirectory = createHooksOutputDirectory(
+    settings,
+    className,
+    testMode
+  );
 
   renderFile(
     componentTemplatePath(templateType),
     componentData,
-    outputDirectory,
+    componentsOutputDirectory,
     settings.generatedComponentFileName.replace("{{className}}", className),
-    `${className} component`
+    `${className} component file`
   );
 
   renderFile(
     storyTemplatePath(templateType),
     { ...componentData, defaultValues, options },
-    outputDirectory,
+    componentsOutputDirectory,
     settings.generatedStoryFileName.replace("{{className}}", className),
     `${className} Storybook file`
   );
 
+  renderFile(
+    hookRestTemplatePath(templateType),
+    componentData,
+    hooksOutputDirectory,
+    settings.generatedHookRestFileName.replace("{{className}}", className),
+    `${className} Hook file`
+  );
+
   if (settings.generateDebugTypes === true) {
-    generateDebugFile(outputDirectory, className, properties);
+    generateDebugFile(componentsOutputDirectory, className, properties);
   }
 
   logger.info(`Completed rendering component for class: ${className}`);
 };
 
-const prepareComponentData = (className, properties) => {
+const prepareComponentData = (className, properties, settings) => {
   return {
     componentName: `${className}Form`,
     types: properties,
+    baseRestApiUrl: settings.baseRestApiUrl,
+    className,
   };
 };
 
@@ -135,10 +159,18 @@ const generateOptions = (subProperties, parentName = "") => {
     });
 };
 
-const createOutputDirectory = (settings, className, testMode) => {
+const createComponentsOutputDirectory = (settings, className, testMode) => {
   return path.join(
     process.cwd(),
-    `${testMode ? "." : ""}${settings.generatedOutputDirectory}`,
+    `${testMode ? "." : ""}${settings.generatedComponentsOutputDirectory}`,
+    className
+  );
+};
+
+const createHooksOutputDirectory = (settings, className, testMode) => {
+  return path.join(
+    process.cwd(),
+    `${testMode ? "." : ""}${settings.generatedHooksOutputDirectory}`,
     className
   );
 };

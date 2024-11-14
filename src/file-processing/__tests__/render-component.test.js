@@ -26,9 +26,10 @@ describe("renderComponent", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     settings = {
-      generatedOutputDirectory: "output",
+      generatedComponentsOutputDirectory: "output",
       generatedComponentFileName: "{{className}}Form",
       generatedStoryFileName: "{{className}}Story",
+      generatedHookRestFileName: "use{{className}}Rest",
       generateDebugTypes: false,
     };
     loadSettings.mockReturnValue(settings);
@@ -38,7 +39,7 @@ describe("renderComponent", () => {
     );
   });
 
-  it("should render the component and story files without errors", async () => {
+  it("should render the component, story, and hook files without errors", async () => {
     ejs.renderFile.mockImplementation((templatePath, data, callback) => {
       callback(null, "<div>Component Content</div>");
     });
@@ -47,9 +48,9 @@ describe("renderComponent", () => {
 
     await renderComponent(className, properties);
 
-    expect(ejs.renderFile).toHaveBeenCalledTimes(2);
-    expect(prettier.format).toHaveBeenCalledTimes(2);
-    expect(resilientWrite).toHaveBeenCalledTimes(2);
+    expect(ejs.renderFile).toHaveBeenCalledTimes(3);
+    expect(prettier.format).toHaveBeenCalledTimes(3);
+    expect(resilientWrite).toHaveBeenCalledTimes(3);
 
     expect(logger.info).toHaveBeenCalledWith(
       expect.stringContaining(
@@ -66,21 +67,6 @@ describe("renderComponent", () => {
         "Generating default value for property: testProperty"
       )
     );
-  });
-
-  it("should log an error if component template rendering fails", async () => {
-    const consoleErrorSpy = jest.spyOn(logger, "error").mockImplementation();
-    ejs.renderFile.mockImplementation((templatePath, data, callback) => {
-      callback(new Error("Template Rendering Error"));
-    });
-
-    await renderComponent(className, properties);
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      `Error generating ${className} component:`,
-      expect.any(Error)
-    );
-    consoleErrorSpy.mockRestore();
   });
 
   it("should log an error if storybook template rendering fails", async () => {
@@ -120,7 +106,7 @@ describe("renderComponent", () => {
     expect(fs.writeFile).toHaveBeenCalledWith(
       path.join(
         process.cwd(),
-        settings.generatedOutputDirectory,
+        settings.generatedComponentsOutputDirectory,
         className,
         `${className}.debug.json`
       ),

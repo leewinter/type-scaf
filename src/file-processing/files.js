@@ -23,6 +23,14 @@ module.exports = {
       templateType,
       "component.stories.ejs"
     ),
+  hookRestTemplatePath: (templateType) =>
+    path.join(
+      process.cwd(),
+      ".type-scaf",
+      "templates",
+      templateType,
+      "use-hook-rest.ejs"
+    ),
   typesPath: path.join(
     process.cwd(),
     ".type-scaf",

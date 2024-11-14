@@ -1,0 +1,99 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+
+const API_BASE_URL = '<%= baseRestApiUrl %>';
+<% const entityNameLower = className.toLowerCase(); %>
+
+// Custom hook for CRUD operations based on provided entity
+export const use<%= className %> = () => {
+  const queryClient = useQueryClient();
+
+  // Fetch all items
+  const useFetch<%= className %>s = () => {
+    return useQuery(['<%= entityNameLower %>s'], async () => {
+      const response = await axios.get(`${API_BASE_URL}`);
+      return response.data;
+    });
+  };
+
+  // Fetch a single item by ID
+  const useFetch<%= className %> = (<%= entityNameLower %>Id) => {
+    return useQuery(['<%= entityNameLower %>', <%= entityNameLower %>Id], async () => {
+      const response = await axios.get(`${API_BASE_URL}/${<%= entityNameLower %>Id}`);
+      return response.data;
+    }, {
+      enabled: !!<%= entityNameLower %>Id,
+    });
+  };
+
+  // Create a new item
+  const useCreate<%= className %> = () => {
+    return useMutation(async (new<%= className %>) => {
+      const response = await axios.post(`${API_BASE_URL}`, new<%= className %>);
+      return response.data;
+    }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['<%= entityNameLower %>s']);
+      },
+    });
+  };
+
+  // Update an existing item
+  const useUpdate<%= className %> = () => {
+    return useMutation(async ({ <%= entityNameLower %>Id, updated<%= className %> }) => {
+      const response = await axios.put(`${API_BASE_URL}/${<%= entityNameLower %>Id}`, updated<%= className %>);
+      return response.data;
+    }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['<%= entityNameLower %>s']);
+        queryClient.invalidateQueries(['<%= entityNameLower %>']);
+      },
+    });
+  };
+
+  // Delete an item
+  const useDelete<%= className %> = () => {
+    return useMutation(async (<%= entityNameLower %>Id) => {
+      await axios.delete(`${API_BASE_URL}/${<%= entityNameLower %>Id}`);
+    }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['<%= entityNameLower %>s']);
+      },
+    });
+  };
+
+  return {
+    useFetch<%= className %>s,
+    useFetch<%= className %>,
+    useCreate<%= className %>,
+    useUpdate<%= className %>,
+    useDelete<%= className %>,
+  };
+};
+
+// Usage example in a component
+/*
+import { use<%= className %> } from './use<%= className %>';
+
+const <%= className %>Component = () => {
+  const { useFetch<%= className %>s, useCreate<%= className %> } = use<%= className %>();
+  const { data: <%= entityNameLower %>s, isLoading } = useFetch<%= className %>s();
+  const create<%= className %> = useCreate<%= className %>();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <h1><%= className %>s</h1>
+      <ul>
+        {<%= entityNameLower %>s.map(<%= entityNameLower %> => (
+          <li key={<%= entityNameLower %>.id}>{<%= entityNameLower %>.name}</li>
+        ))}
+      </ul>
+      <button onClick={() => create<%= className %>.mutate({ name: 'New <%= className %>' })}>
+        Add <%= className %>
+      </button>
+    </div>
+  );
+};
+*/

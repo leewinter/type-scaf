@@ -1,6 +1,9 @@
 {
-  "generatedOutputDirectory": "src/components/generated",
+  "generatedComponentsOutputDirectory": "src/components/generated",
+  "generatedHooksOutputDirectory": "src/hooks/generated",
   "generatedComponentFileName": "{{className}}Form",
   "generatedStoryFileName": "{{className}}Form.stories",
-  "generateDebugTypes": true
+  "generatedHookRestFileName": "use{{className}}Rest",
+  "generateDebugTypes": true,
+  "baseRestApiUrl": "https://apiUrl.co.uk"
 }

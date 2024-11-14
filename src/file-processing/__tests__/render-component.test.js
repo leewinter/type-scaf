@@ -12,6 +12,7 @@ const logger = require("../../utils/logger");
 jest.mock("ejs");
 jest.mock("prettier");
 jest.mock("fs");
+jest.mock("path");
 jest.mock("../load-settings");
 jest.mock("../prettier-parse");
 jest.mock("../../utils/file-copy");

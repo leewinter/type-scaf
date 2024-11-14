@@ -1,9 +1,7 @@
 const initPackage = require("./init-package");
-const copyConfig = require("./copy-config");
-const copyTemplates = require("./copy-templates");
+const copyDefaultFiles = require("./copy-default-files");
 
 module.exports = {
   initPackage,
-  copyConfig,
-  copyTemplates,
+  copyDefaultFiles,
 };

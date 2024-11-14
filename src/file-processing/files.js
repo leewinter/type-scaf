@@ -3,25 +3,29 @@ const path = require("path");
 module.exports = {
   settingsPath: path.join(
     process.cwd(),
-    "type-scaf",
+    ".type-scaf",
     "config",
     "settings.json"
   ),
-  componentTemplatePath: path.join(
-    process.cwd(),
-    "type-scaf",
-    "templates",
-    "component.ejs"
-  ),
-  storyTemplatePath: path.join(
-    process.cwd(),
-    "type-scaf",
-    "templates",
-    "component.stories.ejs"
-  ),
+  componentTemplatePath: (templateType) =>
+    path.join(
+      process.cwd(),
+      ".type-scaf",
+      "templates",
+      templateType,
+      "component.ejs"
+    ),
+  storyTemplatePath: (templateType) =>
+    path.join(
+      process.cwd(),
+      ".type-scaf",
+      "templates",
+      templateType,
+      "component.stories.ejs"
+    ),
   typesPath: path.join(
     process.cwd(),
-    "type-scaf",
+    ".type-scaf",
     "config",
     "package-types.ts"
   ),

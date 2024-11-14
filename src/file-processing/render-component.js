@@ -9,7 +9,7 @@ const logger = require("../utils/logger");
 
 const { componentTemplatePath, storyTemplatePath } = require("./files");
 
-const renderComponent = (className, properties) => {
+const renderComponent = (className, properties, testMode, templateType) => {
   logger.info(`Starting to render component for class: ${className}`);
 
   const settings = loadSettings();
@@ -19,10 +19,10 @@ const renderComponent = (className, properties) => {
     properties
   );
 
-  const outputDirectory = createOutputDirectory(settings, className);
+  const outputDirectory = createOutputDirectory(settings, className, testMode);
 
   renderFile(
-    componentTemplatePath,
+    componentTemplatePath(templateType),
     componentData,
     outputDirectory,
     settings.generatedComponentFileName.replace("{{className}}", className),
@@ -30,7 +30,7 @@ const renderComponent = (className, properties) => {
   );
 
   renderFile(
-    storyTemplatePath,
+    storyTemplatePath(templateType),
     { ...componentData, defaultValues, options },
     outputDirectory,
     settings.generatedStoryFileName.replace("{{className}}", className),
@@ -135,8 +135,12 @@ const generateOptions = (subProperties, parentName = "") => {
     });
 };
 
-const createOutputDirectory = (settings, className) => {
-  return path.join(process.cwd(), settings.generatedOutputDirectory, className);
+const createOutputDirectory = (settings, className, testMode) => {
+  return path.join(
+    process.cwd(),
+    `${testMode ? "." : ""}${settings.generatedOutputDirectory}`,
+    className
+  );
 };
 
 const renderFile = (

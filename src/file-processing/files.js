@@ -31,6 +31,14 @@ module.exports = {
       templateType,
       "use-hook-rest.ejs"
     ),
+  hookLocalTemplatePath: (templateType) =>
+    path.join(
+      process.cwd(),
+      ".type-scaf",
+      "templates",
+      templateType,
+      "use-hook-local.ejs"
+    ),
   typesPath: path.join(
     process.cwd(),
     ".type-scaf",

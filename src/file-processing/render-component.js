@@ -11,6 +11,7 @@ const {
   componentTemplatePath,
   storyTemplatePath,
   hookRestTemplatePath,
+  hookLocalTemplatePath,
 } = require("./files");
 
 const renderComponent = (className, properties, testMode, templateType) => {
@@ -56,7 +57,15 @@ const renderComponent = (className, properties, testMode, templateType) => {
     componentData,
     hooksOutputDirectory,
     settings.generatedHookRestFileName.replace("{{className}}", className),
-    `${className} Hook file`
+    `${className} Hook rest file`
+  );
+
+  renderFile(
+    hookLocalTemplatePath(templateType),
+    componentData,
+    hooksOutputDirectory,
+    settings.generatedHookLocalFileName.replace("{{className}}", className),
+    `${className} Hook local file`
   );
 
   if (settings.generateDebugTypes === true) {

@@ -4,6 +4,7 @@
   "generatedComponentFileName": "{{className}}Form",
   "generatedStoryFileName": "{{className}}Form.stories",
   "generatedHookRestFileName": "use{{className}}Rest",
+  "generatedHookLocalFileName": "use{{className}}Local",
   "generateDebugTypes": true,
   "baseRestApiUrl": "https://apiUrl.co.uk"
 }

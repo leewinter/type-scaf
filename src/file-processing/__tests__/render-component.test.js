@@ -30,6 +30,7 @@ describe("renderComponent", () => {
       generatedComponentFileName: "{{className}}Form",
       generatedStoryFileName: "{{className}}Story",
       generatedHookRestFileName: "use{{className}}Rest",
+      generatedHookLocalFileName: "use{{className}}Rest",
       generateDebugTypes: false,
     };
     loadSettings.mockReturnValue(settings);
@@ -48,9 +49,9 @@ describe("renderComponent", () => {
 
     await renderComponent(className, properties);
 
-    expect(ejs.renderFile).toHaveBeenCalledTimes(3);
-    expect(prettier.format).toHaveBeenCalledTimes(3);
-    expect(resilientWrite).toHaveBeenCalledTimes(3);
+    expect(ejs.renderFile).toHaveBeenCalledTimes(4);
+    expect(prettier.format).toHaveBeenCalledTimes(4);
+    expect(resilientWrite).toHaveBeenCalledTimes(4);
 
     expect(logger.info).toHaveBeenCalledWith(
       expect.stringContaining(

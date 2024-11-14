@@ -1,0 +1,116 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import localforage from 'localforage';
+
+<% const entityNameLower = className.toLowerCase(); %>
+
+// Custom hook for CRUD operations using localForage
+export const use<%= className %> = () => {
+  const queryClient = useQueryClient();
+  const entityKey = '<%= entityNameLower %>s';
+
+  // Initialize localForage
+  const initLocalForage = async () => {
+    const items = await localforage.getItem(entityKey);
+    if (!items) {
+      await localforage.setItem(entityKey, []);
+    }
+  };
+  initLocalForage();
+
+  // Fetch all items
+  const useFetch<%= className %>s = () => {
+    return useQuery([entityKey], async () => {
+      const items = await localforage.getItem(entityKey);
+      return items || [];
+    });
+  };
+
+  // Fetch a single item by ID
+  const useFetch<%= className %> = (<%= entityNameLower %>Id) => {
+    return useQuery([entityKey, <%= entityNameLower %>Id], async () => {
+      const items = await localforage.getItem(entityKey);
+      return items.find(item => item.id === <%= entityNameLower %>Id);
+    }, {
+      enabled: !!<%= entityNameLower %>Id,
+    });
+  };
+
+  // Create a new item
+  const useCreate<%= className %> = () => {
+    return useMutation(async (new<%= className %>) => {
+      const items = await localforage.getItem(entityKey);
+      const updatedItems = [...items, { ...new<%= className %>, id: Date.now() }];
+      await localforage.setItem(entityKey, updatedItems);
+      return updatedItems;
+    }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries([entityKey]);
+      },
+    });
+  };
+
+  // Update an existing item
+  const useUpdate<%= className %> = () => {
+    return useMutation(async ({ <%= entityNameLower %>Id, updated<%= className %> }) => {
+      const items = await localforage.getItem(entityKey);
+      const updatedItems = items.map(item =>
+        item.id === <%= entityNameLower %>Id ? { ...item, ...updated<%= className %> } : item
+      );
+      await localforage.setItem(entityKey, updatedItems);
+      return updatedItems;
+    }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries([entityKey]);
+        queryClient.invalidateQueries([entityKey, <%= entityNameLower %>Id]);
+      },
+    });
+  };
+
+  // Delete an item
+  const useDelete<%= className %> = () => {
+    return useMutation(async (<%= entityNameLower %>Id) => {
+      const items = await localforage.getItem(entityKey);
+      const updatedItems = items.filter(item => item.id !== <%= entityNameLower %>Id);
+      await localforage.setItem(entityKey, updatedItems);
+    }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries([entityKey]);
+      },
+    });
+  };
+
+  return {
+    useFetch<%= className %>s,
+    useFetch<%= className %>,
+    useCreate<%= className %>,
+    useUpdate<%= className %>,
+    useDelete<%= className %>,
+  };
+};
+
+// Usage example in a component
+/*
+import { use<%= className %> } from './use<%= className %>';
+
+const <%= className %>Component = () => {
+  const { useFetch<%= className %>s, useCreate<%= className %> } = use<%= className %>();
+  const { data: <%= entityNameLower %>s, isLoading } = useFetch<%= className %>s();
+  const create<%= className %> = useCreate<%= className %>();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <h1><%= className %>s</h1>
+      <ul>
+        {<%= entityNameLower %>s.map(<%= entityNameLower %> => (
+          <li key={<%= entityNameLower %>.id}>{<%= entityNameLower %>.name}</li>
+        ))}
+      </ul>
+      <button onClick={() => create<%= className %>.mutate({ name: 'New <%= className %>' })}>
+        Add <%= className %>
+      </button>
+    </div>
+  );
+};
+*/

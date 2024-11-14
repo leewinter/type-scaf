@@ -104,6 +104,7 @@ module.exports = (testing = false) => {
       "date-fns@2.28.0",
       "@tanstack/react-query",
       "axios",
+      "localforage",
     ];
 
     // Install the necessary dependencies

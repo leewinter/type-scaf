@@ -7,7 +7,7 @@
     "type-scaf": "./index.js"
   },
   "scripts": {
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --silent=false",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --silent=false --verbose",
     "scaf-init": "node index.js init -t",
     "scaf-transform": "node index.js transform -t"
   },

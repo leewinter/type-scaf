@@ -26,13 +26,38 @@ describe("renderComponent", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     settings = {
-      generatedComponentsOutputDirectory: "output",
-      generatedFormComponentFileName: "{{className}}Form",
-      generatedFormStoryFileName: "{{className}}Story",
-      generatedHookRestFileName: "use{{className}}Rest",
-      generatedHookLocalFileName: "use{{className}}Rest",
-      generatedListComponentFileName: "{{className}}List",
-      generateDebugTypes: false,
+      transformTemplates: [
+        {
+          templateFileName: "form-component.ejs",
+          generatedFileName: "{{className}}Form",
+          outputDirectory: "src/components/generated/{{className}}",
+        },
+        {
+          templateFileName: "form-component.stories.ejs",
+          generatedFileName: "{{className}}Form.stories",
+          outputDirectory: "src/components/generated/{{className}}",
+        },
+        {
+          templateFileName: "list-component.ejs",
+          generatedFileName: "{{className}}List",
+          outputDirectory: "src/components/generated/{{className}}",
+        },
+        {
+          templateFileName: "use-hook-rest.ejs",
+          generatedFileName: "use{{className}}Rest",
+          outputDirectory: "src/hooks/generated/{{className}}",
+        },
+        {
+          templateFileName: "use-hook-local.ejs",
+          generatedFileName: "use{{className}}Local",
+          outputDirectory: "src/hooks/generated/{{className}}",
+        },
+      ],
+      generateDebugTypes: {
+        outputPath: "src/components/generated",
+        enabled: true,
+      },
+      baseRestApiUrl: "https://apiUrl.co.uk",
     };
     loadSettings.mockReturnValue(settings);
     fs.mkdir.mockImplementation((dirPath, options, callback) => callback(null));
@@ -41,7 +66,7 @@ describe("renderComponent", () => {
     );
   });
 
-  it("should render the component, story, and hook files without errors", async () => {
+  it("should render all templates without errors", async () => {
     ejs.renderFile.mockImplementation((templatePath, data, callback) => {
       callback(null, "<div>Component Content</div>");
     });
@@ -50,9 +75,15 @@ describe("renderComponent", () => {
 
     await renderComponent(className, properties);
 
-    expect(ejs.renderFile).toHaveBeenCalledTimes(5);
-    expect(prettier.format).toHaveBeenCalledTimes(5);
-    expect(resilientWrite).toHaveBeenCalledTimes(5);
+    expect(ejs.renderFile).toHaveBeenCalledTimes(
+      settings.transformTemplates.length
+    );
+    expect(prettier.format).toHaveBeenCalledTimes(
+      settings.transformTemplates.length
+    );
+    expect(resilientWrite).toHaveBeenCalledTimes(
+      settings.transformTemplates.length
+    );
 
     expect(logger.info).toHaveBeenCalledWith(
       expect.stringContaining(
@@ -71,8 +102,8 @@ describe("renderComponent", () => {
     );
   });
 
-  it("should generate the debug file if generateDebugTypes is true", async () => {
-    settings.generateDebugTypes = true;
+  it("should generate the debug file if generateDebugTypes is enabled", async () => {
+    settings.generateDebugTypes.enabled = true;
     loadSettings.mockReturnValue(settings);
 
     ejs.renderFile.mockImplementation((templatePath, data, callback) => {
@@ -86,8 +117,7 @@ describe("renderComponent", () => {
     expect(fs.writeFile).toHaveBeenCalledWith(
       path.join(
         process.cwd(),
-        settings.generatedComponentsOutputDirectory,
-        className,
+        settings.generateDebugTypes.outputPath,
         `${className}.debug.json`
       ),
       JSON.stringify({ className, properties }, null, 2),
@@ -96,7 +126,7 @@ describe("renderComponent", () => {
   });
 
   it("should log an error if creating the output directory fails", async () => {
-    settings.generateDebugTypes = true;
+    settings.generateDebugTypes.enabled = true;
     loadSettings.mockReturnValue(settings);
     fs.mkdir.mockImplementation((dirPath, options, callback) =>
       callback(new Error("Directory Creation Error"))
@@ -114,7 +144,7 @@ describe("renderComponent", () => {
   });
 
   it("should log an error if generating the debug file fails", async () => {
-    settings.generateDebugTypes = true;
+    settings.generateDebugTypes.enabled = true;
     loadSettings.mockReturnValue(settings);
     fs.writeFile.mockImplementation((filePath, data, callback) =>
       callback(new Error("File Writing Error"))

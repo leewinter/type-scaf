@@ -1,11 +1,35 @@
 {
-  "generatedComponentsOutputDirectory": "src/components/generated",
-  "generatedHooksOutputDirectory": "src/hooks/generated",
-  "generatedFormComponentFileName": "{{className}}Form",
-  "generatedFormStoryFileName": "{{className}}Form.stories",
-  "generatedListComponentFileName": "{{className}}List",
-  "generatedHookRestFileName": "use{{className}}Rest",
-  "generatedHookLocalFileName": "use{{className}}Local",
-  "generateDebugTypes": true,
+  "transformTemplates": [
+    {
+      "templateFileName": "form-component.ejs",
+      "generatedFileName": "{{className}}Form",
+      "outputDirectory": "src/components/generated/{{className}}"
+    },
+    {
+      "templateFileName": "form-component.stories.ejs",
+      "generatedFileName": "{{className}}Form.stories",
+      "outputDirectory": "src/components/generated/{{className}}"
+    },
+    {
+      "templateFileName": "list-component.ejs",
+      "generatedFileName": "{{className}}List",
+      "outputDirectory": "src/components/generated/{{className}}"
+    },
+    {
+      "templateFileName": "use-hook-rest.ejs",
+      "generatedFileName": "use{{className}}Rest",
+      "outputDirectory": "src/hooks/generated/{{className}}"
+    },
+    {
+      "templateFileName": "use-hook-local.ejs",
+      "generatedFileName": "use{{className}}Local",
+      "outputDirectory": "src/hooks/generated/{{className}}"
+    }
+  ],
+  "templateType": "reactjs",
+  "generateDebugTypes": {
+    "outputPath": "src/components/generated",
+    "enabled": true
+  },
   "baseRestApiUrl": "https://apiUrl.co.uk"
 }

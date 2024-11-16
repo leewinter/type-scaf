@@ -1,6 +1,6 @@
 {
   "name": "type-scaf",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Scaffold typescript types to react components",
   "main": "index.js",
   "bin": {

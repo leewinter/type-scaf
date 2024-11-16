@@ -1,8 +1,9 @@
 {
   "generatedComponentsOutputDirectory": "src/components/generated",
   "generatedHooksOutputDirectory": "src/hooks/generated",
-  "generatedComponentFileName": "{{className}}Form",
-  "generatedStoryFileName": "{{className}}Form.stories",
+  "generatedFormComponentFileName": "{{className}}Form",
+  "generatedFormStoryFileName": "{{className}}Form.stories",
+  "generatedListComponentFileName": "{{className}}List",
   "generatedHookRestFileName": "use{{className}}Rest",
   "generatedHookLocalFileName": "use{{className}}Local",
   "generateDebugTypes": true,

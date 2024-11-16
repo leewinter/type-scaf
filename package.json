@@ -8,8 +8,8 @@
   },
   "scripts": {
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --silent=false --verbose",
-    "scaf-init": "node index.js init -t",
-    "scaf-transform": "node index.js transform -t"
+    "scaf-init": "rm -rf ./.type-scaf&&node index.js init -t",
+    "scaf-transform": "rm -rf ./.src&&node index.js transform -t"
   },
   "author": "lee.winter@boxspark.co.uk",
   "license": "ISC",

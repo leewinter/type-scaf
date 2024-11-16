@@ -8,10 +8,11 @@ const { resilientWrite } = require("../utils/file-copy");
 const logger = require("../utils/logger");
 
 const {
-  componentTemplatePath,
-  storyTemplatePath,
+  formComponentTemplatePath,
+  storyFormTemplatePath,
   hookRestTemplatePath,
   hookLocalTemplatePath,
+  listComponentTemplatePath,
 } = require("./files");
 
 const renderComponent = (className, properties, testMode, templateType) => {
@@ -37,18 +38,26 @@ const renderComponent = (className, properties, testMode, templateType) => {
   );
 
   renderFile(
-    componentTemplatePath(templateType),
+    listComponentTemplatePath(templateType),
     componentData,
     componentsOutputDirectory,
-    settings.generatedComponentFileName.replace("{{className}}", className),
+    settings.generatedListComponentFileName.replace("{{className}}", className),
+    `${className} list component file`
+  );
+
+  renderFile(
+    formComponentTemplatePath(templateType),
+    componentData,
+    componentsOutputDirectory,
+    settings.generatedFormComponentFileName.replace("{{className}}", className),
     `${className} component file`
   );
 
   renderFile(
-    storyTemplatePath(templateType),
+    storyFormTemplatePath(templateType),
     { ...componentData, defaultValues, options },
     componentsOutputDirectory,
-    settings.generatedStoryFileName.replace("{{className}}", className),
+    settings.generatedFormStoryFileName.replace("{{className}}", className),
     `${className} Storybook file`
   );
 

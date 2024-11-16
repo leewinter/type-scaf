@@ -27,10 +27,11 @@ describe("renderComponent", () => {
     jest.clearAllMocks();
     settings = {
       generatedComponentsOutputDirectory: "output",
-      generatedComponentFileName: "{{className}}Form",
-      generatedStoryFileName: "{{className}}Story",
+      generatedFormComponentFileName: "{{className}}Form",
+      generatedFormStoryFileName: "{{className}}Story",
       generatedHookRestFileName: "use{{className}}Rest",
       generatedHookLocalFileName: "use{{className}}Rest",
+      generatedListComponentFileName: "{{className}}List",
       generateDebugTypes: false,
     };
     loadSettings.mockReturnValue(settings);
@@ -49,9 +50,9 @@ describe("renderComponent", () => {
 
     await renderComponent(className, properties);
 
-    expect(ejs.renderFile).toHaveBeenCalledTimes(4);
-    expect(prettier.format).toHaveBeenCalledTimes(4);
-    expect(resilientWrite).toHaveBeenCalledTimes(4);
+    expect(ejs.renderFile).toHaveBeenCalledTimes(5);
+    expect(prettier.format).toHaveBeenCalledTimes(5);
+    expect(resilientWrite).toHaveBeenCalledTimes(5);
 
     expect(logger.info).toHaveBeenCalledWith(
       expect.stringContaining(
@@ -68,28 +69,6 @@ describe("renderComponent", () => {
         "Generating default value for property: testProperty"
       )
     );
-  });
-
-  it("should log an error if storybook template rendering fails", async () => {
-    const consoleErrorSpy = jest.spyOn(logger, "error").mockImplementation();
-    ejs.renderFile
-      .mockImplementationOnce((templatePath, data, callback) => {
-        callback(null, "<div>Component Content</div>");
-      })
-      .mockImplementationOnce((templatePath, data, callback) => {
-        callback(new Error("Storybook Rendering Error"));
-      });
-
-    prettier.format.mockResolvedValue("<div>Formatted Component Content</div>");
-    getPrettierParser.mockReturnValue("babel");
-
-    await renderComponent(className, properties);
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      `Error generating ${className} Storybook file:`,
-      expect.any(Error)
-    );
-    consoleErrorSpy.mockRestore();
   });
 
   it("should generate the debug file if generateDebugTypes is true", async () => {

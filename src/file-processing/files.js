@@ -7,21 +7,29 @@ module.exports = {
     "config",
     "settings.json"
   ),
-  componentTemplatePath: (templateType) =>
+  listComponentTemplatePath: (templateType) =>
     path.join(
       process.cwd(),
       ".type-scaf",
       "templates",
       templateType,
-      "component.ejs"
+      "list-component.ejs"
     ),
-  storyTemplatePath: (templateType) =>
+  formComponentTemplatePath: (templateType) =>
     path.join(
       process.cwd(),
       ".type-scaf",
       "templates",
       templateType,
-      "component.stories.ejs"
+      "form-component.ejs"
+    ),
+  storyFormTemplatePath: (templateType) =>
+    path.join(
+      process.cwd(),
+      ".type-scaf",
+      "templates",
+      templateType,
+      "form-component.stories.ejs"
     ),
   hookRestTemplatePath: (templateType) =>
     path.join(

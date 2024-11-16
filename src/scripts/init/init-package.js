@@ -105,6 +105,7 @@ module.exports = (testing = false) => {
       "@tanstack/react-query",
       "axios",
       "localforage",
+      "@mui/x-data-grid",
     ];
 
     // Install the necessary dependencies

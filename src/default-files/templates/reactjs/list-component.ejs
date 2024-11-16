@@ -1,0 +1,87 @@
+import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import { DataGrid } from '@mui/x-data-grid';
+import { Button, Box, Typography } from '@mui/material';
+<% if (types.some(type => type.yupType === 'date')) { %>
+import { format } from 'date-fns';
+<% } %>
+
+const <%= componentName %>Table = ({ data, onEdit, onDelete }) => {
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
+    // Format rows for the DataGrid
+    const formattedRows = data.map((item, index) => ({
+      id: index,
+      ...item,
+      <% types.forEach(type => { %>
+      <% if (type.yupType === 'date') { %>
+      <%= type.name %>: item.<%= type.name %> ? format(new Date(item.<%= type.name %>), 'yyyy-MM-dd') : '',
+      <% } %>
+      <% }) %>
+    }));
+    setRows(formattedRows);
+  }, [data]);
+
+  const columns = [
+    <% types.forEach(type => { %>
+    {
+      field: '<%= type.name %>',
+      headerName: '<%= type.label %>',
+      flex: 1,
+      <% if (type.yupType === 'date') { %>
+      valueGetter: (params) => params.value ? format(new Date(params.value), 'yyyy-MM-dd') : '',
+      <% } %>
+    },
+    <% }) %>
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      renderCell: (params) => (
+        <Box display="flex" gap={1}>
+          <Button variant="contained" color="primary" onClick={() => onEdit(params.row)}>
+            Edit
+          </Button>
+          <Button variant="contained" color="secondary" onClick={() => onDelete(params.row.id)}>
+            Delete
+          </Button>
+        </Box>
+      ),
+    },
+  ];
+
+  return (
+    <Box sx={{ height: 400, width: '100%' }}>
+      <Typography variant="h4" gutterBottom>
+        <%= componentName %> List
+      </Typography>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        pageSize={5}
+        rowsPerPageOptions={[5]}
+        disableSelectionOnClick
+      />
+    </Box>
+  );
+};
+
+export default <%= componentName %>Table;
+
+<%= componentName %>Table.propTypes = {
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      <% types.forEach(type => { %>
+      <%= type.name %>: PropTypes.<%= (type.yupType === 'string' ? 'string' 
+          : type.yupType === 'number' ? 'number'
+          : type.yupType === 'date' ? 'string' // Dates are formatted as strings for display
+          : type.yupType === 'array' ? 'array'
+          : type.yupType === 'object' ? 'object'
+          : 'any') %><%= type.required ? '.isRequired' : '' %>,
+      <% }) %>
+    })
+  ).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+};

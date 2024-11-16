@@ -137,7 +137,7 @@ const <%= componentName %> = ({
                         helperText={errors.<%= type.name %> || ''}
                         variant="outlined"
                         fullWidth
-                        required={!!type.required}
+                        <% if (type.required) { %>required<% } %>
                       />
                     )}
                   />

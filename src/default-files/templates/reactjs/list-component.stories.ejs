@@ -1,0 +1,60 @@
+import { useState } from 'react';
+import <%= className %>List from './<%= className %>List';
+
+export default {
+  title: 'Generated/<%= className %>List',
+  component: <%= className %>List,
+  argTypes: {
+    data: { control: 'object' },
+  },
+};
+
+// Utility function to parse default data for the table component
+const parseTableData = (data) => {
+  if (!Array.isArray(data)) {
+    console.warn('Expected data to be an array, but received:', data);
+    return [];
+  }
+  
+  return data.map(item => {
+    const parsedItem = { ...item };
+    for (const key in parsedItem) {
+      if (Object.prototype.hasOwnProperty.call(parsedItem, key)) {
+        const value = parsedItem[key];
+        if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+          parsedItem[key] = new Date(value);
+        }
+      }
+    }
+    return parsedItem;
+  });
+};
+
+const Template = (args) => {
+  const initialData = parseTableData(args.data);
+  const [tableData, setTableData] = useState(initialData);
+
+  const handleEdit = (updatedItem) => {
+    setTableData(prevData =>
+      prevData.map(item => (item.id === updatedItem.id ? updatedItem : item))
+    );
+  };
+
+  const handleDelete = (itemId) => {
+    setTableData(prevData => prevData.filter(item => item.id !== itemId));
+  };
+
+  return (
+    <<%= className %>List
+      {...args}
+      data={tableData}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+    />
+  );
+};
+
+export const Default = Template.bind({});
+Default.args = {
+  data: Array.isArray(<%- JSON.stringify(defaultValues) %>) ? <%- JSON.stringify(defaultValues) %> : [],
+};

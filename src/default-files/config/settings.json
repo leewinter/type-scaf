@@ -16,6 +16,11 @@
       "outputDirectory": "src/components/generated/{{className}}"
     },
     {
+      "templateFileName": "list-component.stories.ejs",
+      "generatedFileName": "{{className}}List.stories",
+      "outputDirectory": "src/components/generated/{{className}}"
+    },
+    {
       "templateFileName": "use-hook-rest.ejs",
       "generatedFileName": "use{{className}}Rest",
       "outputDirectory": "src/hooks/generated/{{className}}"

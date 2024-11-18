@@ -2,7 +2,7 @@ const logger = require("../utils/logger");
 const parseClassMembers = require("../file-processing/parse-class-members");
 const renderComponent = require("../file-processing/render-component");
 
-const processNode = (node, testMode, templateType) => {
+const processNode = (node, testMode) => {
   const kindName = node.getKindName();
 
   if (kindName === "EndOfFileToken") {
@@ -17,7 +17,7 @@ const processNode = (node, testMode, templateType) => {
     const properties = parseClassMembers(node);
 
     if (properties.length > 0) {
-      renderComponent(className, properties, testMode, templateType);
+      renderComponent(className, properties, testMode);
     } else {
       logger.warn(`No properties found for class ${className}`);
     }

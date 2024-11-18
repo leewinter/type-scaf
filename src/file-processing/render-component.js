@@ -7,7 +7,7 @@ const prettier = require("prettier");
 const { resilientWrite } = require("../utils/file-copy");
 const logger = require("../utils/logger");
 
-const renderComponent = (className, properties, testMode, templateType) => {
+const renderComponent = (className, properties, testMode) => {
   logger.info(`Starting to render component for class: ${className}`);
 
   const settings = loadSettings();
@@ -33,7 +33,7 @@ const renderComponent = (className, properties, testMode, templateType) => {
     generateDebugFile(
       getRuntimePath(settings.generateDebugTypes.outputPath, testMode),
       className,
-      properties
+      { ...componentData, defaultValues, options }
     );
   }
 
@@ -42,7 +42,6 @@ const renderComponent = (className, properties, testMode, templateType) => {
 
 const prepareComponentData = (className, properties, settings) => {
   return {
-    componentName: `${className}Form`,
     types: properties,
     baseRestApiUrl: settings.baseRestApiUrl,
     className,

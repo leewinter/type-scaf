@@ -20,7 +20,7 @@ import { Typography } from '@mui/material';
 <% } %>
 import { Button, Box } from '@mui/material';
 
-const <%= componentName %> = ({
+const <%= className %>Form = ({
     defaultValues,
     options,
 }) => {
@@ -164,10 +164,10 @@ const <%= componentName %> = ({
     );
 };
 
-export default <%= componentName %>;
+export default <%= className %>Form;
 
 // Define PropTypes for the component
-<%= componentName %>.propTypes = {
+<%= className %>Form.propTypes = {
     defaultValues: PropTypes.shape({
         <% types.forEach(type => { 
            if (!type.primaryKey) { %>

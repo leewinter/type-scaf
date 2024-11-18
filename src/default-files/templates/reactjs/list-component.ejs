@@ -6,7 +6,7 @@ import { Button, Box, Typography } from '@mui/material';
 import { format } from 'date-fns';
 <% } %>
 
-const <%= componentName %>Table = ({ data, onEdit, onDelete }) => {
+const <%= className %>Table = ({ data, onEdit, onDelete }) => {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const <%= componentName %>Table = ({ data, onEdit, onDelete }) => {
   return (
     <Box sx={{ height: 400, width: '100%' }}>
       <Typography variant="h4" gutterBottom>
-        <%= componentName %> List
+        <%= className %> List
       </Typography>
       <DataGrid
         rows={rows}
@@ -67,9 +67,9 @@ const <%= componentName %>Table = ({ data, onEdit, onDelete }) => {
   );
 };
 
-export default <%= componentName %>Table;
+export default <%= className %>Table;
 
-<%= componentName %>Table.propTypes = {
+<%= className %>Table.propTypes = {
   data: PropTypes.arrayOf(
     PropTypes.shape({
       <% types.forEach(type => { %>

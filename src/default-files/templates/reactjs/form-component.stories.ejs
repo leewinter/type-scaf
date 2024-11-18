@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import <%= componentName %> from './<%= componentName %>';
+import <%= className %>Form from './<%= className %>Form';
 
 export default {
-  title: 'Generated/<%= componentName %>',
-  component: <%= componentName %>,
+  title: 'Generated/<%= className %>/<%= className %>Form',
+  component: <%= className %>Form,
   argTypes: {
     defaultValues: { control: 'object' },
     options: { control: 'object' },
@@ -33,7 +33,7 @@ const Template = (args) => {
     setData(newData);
   };
 
-  return <<%= componentName %> {...args} defaultValues={data} onChange={handleChange} />;
+  return <<%= className %>Form {...args} defaultValues={data} onChange={handleChange} />;
 };
 
 export const Default = Template.bind({});

@@ -114,13 +114,23 @@ describe("renderComponent", () => {
 
     await renderComponent(className, properties);
 
+    const expectedProperties = {
+      types: properties,
+      baseRestApiUrl: settings.baseRestApiUrl,
+      className,
+      defaultValues: {
+        testProperty: "",
+      },
+      options: {},
+    };
+
     expect(fs.writeFile).toHaveBeenCalledWith(
       path.join(
         process.cwd(),
         settings.generateDebugTypes.outputPath,
         `${className}.debug.json`
       ),
-      JSON.stringify({ className, properties }, null, 2),
+      JSON.stringify({ className, properties: expectedProperties }, null, 2),
       expect.any(Function)
     );
   });

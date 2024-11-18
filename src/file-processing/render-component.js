@@ -14,15 +14,10 @@ const renderComponent = (className, properties, testMode) => {
 
   const componentData = prepareComponentData(className, properties, settings);
 
-  const { defaultValues, options } = generateDefaultValuesAndOptions(
-    className,
-    properties
-  );
-
   for (const template of settings.transformTemplates) {
     renderFile(
       getTemplatePath(settings.templateType, template.templateFileName),
-      { ...componentData, defaultValues, options },
+      componentData,
       getOutputDirectory(template.outputDirectory, className, testMode),
       template.generatedFileName.replace("{{className}}", className),
       `${className} list component file`
@@ -33,7 +28,7 @@ const renderComponent = (className, properties, testMode) => {
     generateDebugFile(
       getRuntimePath(settings.generateDebugTypes.outputPath, testMode),
       className,
-      { ...componentData, defaultValues, options }
+      componentData
     );
   }
 
@@ -41,17 +36,7 @@ const renderComponent = (className, properties, testMode) => {
 };
 
 const prepareComponentData = (className, properties, settings) => {
-  return {
-    types: properties,
-    baseRestApiUrl: settings.baseRestApiUrl,
-    className,
-  };
-};
-
-const generateDefaultValuesAndOptions = (className, properties) => {
-  logger.info(
-    `Generating mock data and options for properties of class: ${className}`
-  );
+  logger.info(`Preparing component data for class: ${className}`);
 
   const defaultValues = {};
   const options = {};
@@ -63,12 +48,18 @@ const generateDefaultValuesAndOptions = (className, properties) => {
 
       if (type.type === "multi-select" || type.type === "select") {
         logger.info(`Generating options for property: ${type.name}`);
-        options[type.name] = generateOptions(type.properties || [], type.name); // Pass the type name here as parentName
+        options[type.name] = generateOptions(type.properties || [], type.name);
       }
     }
   });
 
-  return { defaultValues, options };
+  return {
+    types: properties,
+    baseRestApiUrl: settings.baseRestApiUrl,
+    className,
+    defaultValues,
+    options,
+  };
 };
 
 const generateDefaultValue = (type) => {
@@ -82,7 +73,7 @@ const generateDefaultValue = (type) => {
     case "array":
       return [];
     case "object":
-      return {}; // Setting default object to prevent warning, "A component is changing an uncontrolled input to be controlled"
+      return {};
     default:
       return "";
   }
@@ -113,7 +104,7 @@ const generateOptions = (subProperties, parentName = "") => {
   return Array(3)
     .fill(null)
     .map((_, index) => {
-      const mockObject = generateMockData(subProperties, index, parentName); // Pass parentName dynamically
+      const mockObject = generateMockData(subProperties, index, parentName);
       const labelProp = subProperties.find((prop) => prop.optionsLabel);
 
       const uniquePart = Math.random().toString(36).substr(2, 5);

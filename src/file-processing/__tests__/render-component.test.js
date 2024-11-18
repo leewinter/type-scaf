@@ -92,7 +92,7 @@ describe("renderComponent", () => {
     );
     expect(logger.info).toHaveBeenCalledWith(
       expect.stringContaining(
-        "Generating mock data and options for properties of class: TestComponent"
+        "Preparing component data for class: TestComponent"
       )
     );
     expect(logger.info).toHaveBeenCalledWith(

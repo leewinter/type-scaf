@@ -14,11 +14,6 @@ const <%= className %>Table = ({ data, onEdit, onDelete }) => {
     const formattedRows = data.map((item, index) => ({
       id: index,
       ...item,
-      <% types.forEach(type => { %>
-      <% if (type.yupType === 'date') { %>
-      <%= type.name %>: item.<%= type.name %> ? format(new Date(item.<%= type.name %>), 'yyyy-MM-dd') : '',
-      <% } %>
-      <% }) %>
     }));
     setRows(formattedRows);
   }, [data]);
@@ -30,7 +25,7 @@ const <%= className %>Table = ({ data, onEdit, onDelete }) => {
       headerName: '<%= type.label %>',
       flex: 1,
       <% if (type.yupType === 'date') { %>
-      valueGetter: (params) => params.value ? format(new Date(params.value), 'yyyy-MM-dd') : '',
+      valueGetter: (param) => param ? format(new Date(param), 'yyyy-MM-dd') : '',
       <% } %>
     },
     <% }) %>
@@ -61,7 +56,7 @@ const <%= className %>Table = ({ data, onEdit, onDelete }) => {
         columns={columns}
         pageSize={5}
         rowsPerPageOptions={[5]}
-        disableSelectionOnClick
+        disableRowSelectionOnClick
       />
     </Box>
   );

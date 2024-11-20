@@ -13,10 +13,7 @@ import { TextField } from '@mui/material';
 import { Autocomplete } from '@mui/material';
 <% } %>
 <% if (types.some(type => type.type === 'select')) { %>
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-<% } %>
-<% if (types.some(type => type.type === 'select')) { %>
-import { Typography } from '@mui/material';
+import { Select, MenuItem, FormControl, InputLabel, Typography } from '@mui/material';
 <% } %>
 import { Button, Box } from '@mui/material';
 
@@ -79,6 +76,9 @@ const <%= className %>Form = ({
         }
     };
 
+    <% // Function to find the primary key of a type %>
+    <% const getPrimaryKey = (type) => type.properties.find(prop => prop.primaryKey)?.name; %>
+
     return (
         <% if (types.some(type => type.yupType === 'date')) { %>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -87,42 +87,64 @@ const <%= className %>Form = ({
             <% types.forEach(type => { 
                if (!type.primaryKey) { %>
                 <% if (type.type === 'multi-select') { %>
-                  <Autocomplete
-                    multiple
-                    options={options['<%= type.name %>'] || []} // Use options for multi-select
-                    getOptionLabel={(option) => option.label}
-                    onChange={(event, newValue) => {
-                      setFormData({ ...formData, <%= type.name %>: newValue });
-                    }}
-                    value={formData.<%= type.name %>}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="<%= type.label %>"
-                        error={!!errors.<%= type.name %>}
-                        helperText={errors.<%= type.name %> || ''}
-                        variant="outlined"
-                      />
-                    )}
-                  />
-                <% } else if (type.type === 'select') { %>
-                  <FormControl fullWidth variant="outlined" error={!!errors.<%= type.name %>}>
-                    <InputLabel><%= type.label %></InputLabel>
-                    <Select
-                      label="<%= type.label %>"
-                      name="<%= type.name %>"
-                      value={formData.<%= type.name %>}
-                      onChange={handleChange}
-                      <% if (type.required) { %>required<% } %> // Mark Select as required if necessary
-                    >
-                      {(options['<%= type.name %>'] || []).map(option => (
-                        <MenuItem key={option.key} value={option.value}>
+                  <% const primaryKey = getPrimaryKey(type); %>
+                  <% if (primaryKey) { %>
+                    <Autocomplete
+                      multiple
+                      options={options['<%= type.name %>'] || []} // Use options for multi-select
+                      getOptionLabel={(option) => option.label}
+                      value={formData.<%= type.name %>.map(
+                        (val) =>
+                          options['<%= type.name %>'].find(
+                            (option) => option.value['<%= primaryKey %>'] === val['<%= primaryKey %>']
+                          ) || val
+                      )}
+                      isOptionEqualToValue={(option, value) =>
+                        option.value['<%= primaryKey %>'] === value['<%= primaryKey %>']
+                      }
+                      onChange={(event, newValue) => {
+                        setFormData({
+                          ...formData,
+                          <%= type.name %>: newValue.map((option) => option.value),
+                        });
+                      }}
+                      renderOption={(props, option) => (
+                        <Box component="li" {...props} key={option.key}>
                           {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    <Typography variant="caption" color="error">{errors.<%= type.name %> || ''}</Typography>
-                  </FormControl>
+                        </Box>
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="<%= type.label %>"
+                          error={!!errors.<%= type.name %>}
+                          helperText={errors.<%= type.name %> || ''}
+                          variant="outlined"
+                        />
+                      )}
+                    />
+                  <% } %>
+                <% } else if (type.type === 'select') { %>
+                  <% const primaryKey = getPrimaryKey(type); %>
+                  <% if (primaryKey) { %>
+                    <FormControl fullWidth variant="outlined" error={!!errors.<%= type.name %>}>
+                      <InputLabel><%= type.label %></InputLabel>
+                      <Select
+                        label="<%= type.label %>"
+                        name="<%= type.name %>"
+                        value={formData.<%= type.name %>}
+                        onChange={handleChange}
+                        <% if (type.required) { %>required<% } %> // Mark Select as required if necessary
+                      >
+                        {(options['<%= type.name %>'] || []).map(option => (
+                          <MenuItem key={option.key} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <Typography variant="caption" color="error">{errors.<%= type.name %> || ''}</Typography>
+                    </FormControl>
+                  <% } %>
                 <% } else if (type.yupType === 'date') { %>
                   <DatePicker
                     label="<%= type.label %>"

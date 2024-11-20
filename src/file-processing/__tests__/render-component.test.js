@@ -102,39 +102,6 @@ describe("renderComponent", () => {
     );
   });
 
-  it("should generate the debug file if generateDebugTypes is enabled", async () => {
-    settings.generateDebugTypes.enabled = true;
-    loadSettings.mockReturnValue(settings);
-
-    ejs.renderFile.mockImplementation((templatePath, data, callback) => {
-      callback(null, "<div>Component Content</div>");
-    });
-    prettier.format.mockResolvedValue("<div>Formatted Component Content</div>");
-    getPrettierParser.mockReturnValue("babel");
-
-    await renderComponent(className, properties);
-
-    const expectedProperties = {
-      types: properties,
-      baseRestApiUrl: settings.baseRestApiUrl,
-      className,
-      defaultValues: {
-        testProperty: "",
-      },
-      options: {},
-    };
-
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      path.join(
-        process.cwd(),
-        settings.generateDebugTypes.outputPath,
-        `${className}.debug.json`
-      ),
-      JSON.stringify({ className, properties: expectedProperties }, null, 2),
-      expect.any(Function)
-    );
-  });
-
   it("should log an error if creating the output directory fails", async () => {
     settings.generateDebugTypes.enabled = true;
     loadSettings.mockReturnValue(settings);

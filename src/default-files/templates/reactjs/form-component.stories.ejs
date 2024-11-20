@@ -11,13 +11,20 @@ export default {
 };
 
 // Utility function to parse default values for component props
-const parseDefaultValues = (values) => {
+const parseDefaultValues = (values, options) => {
   const parsedValues = { ...values };
   for (const key in parsedValues) {
     if (Object.prototype.hasOwnProperty.call(parsedValues, key)) {
       const value = parsedValues[key];
       if (typeof value === 'string' && !isNaN(Date.parse(value))) {
         parsedValues[key] = new Date(value);
+      }
+      // If the field is a select or multi-select, set the value from options if it exists
+      if (Array.isArray(options[key])) {
+        const option = options[key].find(opt => JSON.stringify(opt.value) === JSON.stringify(value));
+        if (option) {
+          parsedValues[key] = option.value;
+        }
       }
     }
   }
@@ -26,7 +33,7 @@ const parseDefaultValues = (values) => {
 
 const Template = (args) => {
   // Use Date instances for defaultValues when passing them to the component
-  const initialValues = parseDefaultValues(args.defaultValues);
+  const initialValues = parseDefaultValues(args.defaultValues, args.options);
   const [data, setData] = useState(initialValues);
 
   const handleChange = (newData) => {
@@ -36,8 +43,10 @@ const Template = (args) => {
   return <<%= className %>Form {...args} defaultValues={data} onChange={handleChange} />;
 };
 
+const options = <%- JSON.stringify(options) %>
+
 export const Default = Template.bind({});
 Default.args = {
-  defaultValues: <%- JSON.stringify(defaultValues) %>,
-  options: <%- JSON.stringify(options) %>,
+  defaultValues: parseDefaultValues(<%- JSON.stringify(defaultValues) %>, options),
+  options,
 };

@@ -6,6 +6,7 @@ const getPrettierParser = require("./prettier-parse");
 const prettier = require("prettier");
 const { resilientWrite } = require("../utils/file-copy");
 const logger = require("../utils/logger");
+const { generateMockArray } = require("./mock-data-service");
 
 const renderComponent = (className, properties, testMode) => {
   logger.info(`Starting to render component for class: ${className}`);
@@ -38,17 +39,45 @@ const renderComponent = (className, properties, testMode) => {
 const prepareComponentData = (className, properties, settings) => {
   logger.info(`Preparing component data for class: ${className}`);
 
-  const defaultValues = {};
   const options = {};
+  const defaultValues = {};
+  const mockData = generateMockArray(5, properties, className);
 
+  // Generate options for relational properties
+  properties.forEach((type) => {
+    if (
+      !type.primaryKey &&
+      (type.type === "multi-select" || type.type === "select")
+    ) {
+      logger.info(`Generating options for property: ${type.name}`);
+      options[type.name] = generateMockArray(
+        4,
+        type.properties || [],
+        type.name
+      );
+    }
+  });
+
+  // Generate default values using the generated options
   properties.forEach((type) => {
     if (!type.primaryKey) {
       logger.info(`Generating default value for property: ${type.name}`);
-      defaultValues[type.name] = generateDefaultValue(type);
 
       if (type.type === "multi-select" || type.type === "select") {
-        logger.info(`Generating options for property: ${type.name}`);
-        options[type.name] = generateOptions(type.properties || [], type.name);
+        // Assign the default value as a reference to an option from the generated options
+        const generatedOptions = options[type.name];
+        if (generatedOptions && generatedOptions.length > 0) {
+          const randomIndex = Math.floor(
+            Math.random() * generatedOptions.length
+          );
+          defaultValues[type.name] =
+            type.type === "multi-select"
+              ? [generatedOptions[randomIndex].value]
+              : generatedOptions[randomIndex].value;
+        }
+      } else {
+        // For non-relational properties, use the generateDefaultValue function
+        defaultValues[type.name] = generateDefaultValue(type);
       }
     }
   });
@@ -59,6 +88,7 @@ const prepareComponentData = (className, properties, settings) => {
     className,
     defaultValues,
     options,
+    mockData,
   };
 };
 
@@ -77,50 +107,6 @@ const generateDefaultValue = (type) => {
     default:
       return "";
   }
-};
-
-const generateMockData = (subProperties, index = 0, parentName = "") => {
-  const mockData = {};
-  subProperties.forEach((prop) => {
-    const labelPrefix = parentName
-      ? `${parentName} ${prop.label || prop.name}`
-      : prop.label || prop.name;
-    if (prop.yupType === "string") {
-      mockData[prop.name] = `${labelPrefix} ${index}`;
-    } else if (prop.yupType === "number") {
-      mockData[prop.name] = Math.floor(Math.random() * 100) + index;
-    } else if (prop.yupType === "date") {
-      mockData[prop.name] = new Date();
-    } else if (prop.yupType === "array") {
-      mockData[prop.name] = [];
-    } else if (prop.yupType === "object") {
-      mockData[prop.name] = null;
-    }
-  });
-  return mockData;
-};
-
-const generateOptions = (subProperties, parentName = "") => {
-  return Array(3)
-    .fill(null)
-    .map((_, index) => {
-      const mockObject = generateMockData(subProperties, index, parentName);
-      const labelProp = subProperties.find((prop) => prop.optionsLabel);
-
-      const uniquePart = Math.random().toString(36).substr(2, 5);
-      const keyBase = labelProp
-        ? mockObject[labelProp.name]
-        : `Unknown-${index}`;
-      const uniqueId = `${keyBase}-${index}-${uniquePart}`;
-
-      return {
-        value: mockObject,
-        label: labelProp
-          ? mockObject[labelProp.name]
-          : `Unknown Label ${index}`,
-        key: uniqueId,
-      };
-    });
 };
 
 const getOutputDirectory = (relativePath, className, testMode) => {

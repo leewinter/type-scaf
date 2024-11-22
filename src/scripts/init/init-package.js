@@ -1,7 +1,7 @@
 const fs = require("fs"); // Import the fs module to interact with the file system
 const logger = require("../../utils/logger");
 const {
-  installDevDependencyIfMissing,
+  installGithubDependencyIfMissing,
   getPackageJsonPath,
 } = require("../../services/npm-service");
 
@@ -43,7 +43,7 @@ module.exports = (testing = false) => {
     const packageName = extractPackageNameFromGithubSource(githubDependency);
 
     // Install 'type-scaf' as a dev dependency if it's not already installed
-    installDevDependencyIfMissing(packageName, githubDependency);
+    installGithubDependencyIfMissing(packageName, githubDependency);
 
     // Add custom scripts to package.json
     updatePackageScripts(packageJsonPath, {

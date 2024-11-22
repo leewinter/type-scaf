@@ -28,8 +28,11 @@ function runCommand(command) {
   }
 }
 
-// Function to install a development dependency if it's not already in package.json
-function installDevDependencyIfMissing(packageName, dependency) {
+// Had to handle slightly different so I could install from github directly if not local
+// TODO: This could be handled easier by passing github source as version
+// eg { "type-scaf": "github:leewinter/type-scaf"}
+// Should be able to refactor into one this way, and still have the check for currently installed working
+function installGithubDependencyIfMissing(packageName, dependency) {
   const packageJsonPath = getPackageJsonPath();
 
   // Read and parse package.json to check if the dependency is present
@@ -71,6 +74,6 @@ function installDependenciesIfMissing(dependencies) {
 
 module.exports = {
   getPackageJsonPath,
-  installDevDependencyIfMissing,
+  installGithubDependencyIfMissing,
   installDependenciesIfMissing,
 };

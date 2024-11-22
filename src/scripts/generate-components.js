@@ -2,7 +2,7 @@ const { Project } = require("ts-morph");
 const processNode = require("../file-processing/process-node");
 const loadSettings = require("../file-processing/load-settings");
 const { typesPath } = require("../file-processing/files");
-const { installDependenciesIfMissing } = require("./init/install-dependencies");
+const { installDependenciesIfMissing } = require("../services/npm-service");
 
 module.exports = {
   generateComponents: (testing = false, templateType = "reactJs") => {

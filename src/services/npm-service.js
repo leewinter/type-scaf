@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { execSync } = require("child_process");
-const logger = require("../../utils/logger");
+const logger = require("../utils/logger");
 const path = require("path");
 
 function getPackageJsonPath() {
@@ -28,34 +28,7 @@ function runCommand(command) {
   }
 }
 
-// Function to install a list of dependencies
-function installDependencies(dependencies) {
-  dependencies.forEach((dependency) => runCommand(`npm install ${dependency}`)); // Iterate over each dependency and run the install command
-}
-
-// Function to install a development dependency if it's not already in package.json
-function installDevDependencyIfMissing(
-  packageJsonPath,
-  packageName,
-  dependency
-) {
-  // Read and parse package.json to check if the dependency is present
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
-
-  const isDependencyInstalled =
-    packageJson.devDependencies &&
-    Object.keys(packageJson.devDependencies).some(
-      (installedDependency) => installedDependency === packageName
-    );
-
-  if (!isDependencyInstalled) {
-    runCommand(`npm install --save-dev ${dependency}`); // Install the missing development dependency
-  } else {
-    logger.info(`${packageName} is already installed as a dev dependency.`); // Log that the dependency is already installed
-  }
-}
-
-function installDependenciesIfMissing(dependencies) {
+function installDependenciesIfMissing(dependencies, dev = false) {
   const packageJsonPath = getPackageJsonPath();
 
   // Read and parse package.json to check if the dependency is present
@@ -63,22 +36,29 @@ function installDependenciesIfMissing(dependencies) {
 
   const dependencyKeys = Object.keys(dependencies);
 
+  const dependencySource = dev
+    ? packageJson.devDependencies
+    : packageJson.dependencies;
+
   dependencyKeys.forEach((packageName) => {
     const isDependencyInstalled =
-      packageJson.dependencies &&
-      Object.keys(packageJson.dependencies).some(
+      dependencySource &&
+      Object.keys(dependencySource).some(
         (installedDependency) => installedDependency === packageName
       );
 
     if (!isDependencyInstalled)
-      installDependencies([`${packageName}@${dependencies[packageName]}`]);
-    else logger.info(`Package ${packageName} already installed`);
+      runCommand(
+        `npm install ${packageName}@${dependencies[packageName]} ${dev ? "--save-dev" : ""}`
+      );
+    else
+      logger.info(
+        `Package ${packageName} already installed ${dev ? "as a dev dependency" : ""}`
+      );
   });
 }
 
 module.exports = {
   getPackageJsonPath,
-  installDependencies,
-  installDevDependencyIfMissing,
   installDependenciesIfMissing,
 };

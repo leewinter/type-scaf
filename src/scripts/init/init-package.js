@@ -1,17 +1,9 @@
 const fs = require("fs"); // Import the fs module to interact with the file system
 const logger = require("../../utils/logger");
 const {
+  installDependenciesIfMissing,
   getPackageJsonPath,
-  installDevDependencyIfMissing,
-} = require("./install-dependencies");
-
-// Function to extract the package name from a GitHub dependency string
-function extractPackageNameFromGithubSource(dependency) {
-  if (dependency.startsWith("github:")) {
-    return dependency.split("/")[1]; // Extract package name after the "/"
-  }
-  return dependency.split("@")[0]; // Handle standard npm packages or scoped packages
-}
+} = require("../../services/npm-service");
 
 // Function to update package.json with additional scripts
 function updatePackageScripts(packageJsonPath, scriptsToAdd) {
@@ -33,21 +25,16 @@ function updatePackageScripts(packageJsonPath, scriptsToAdd) {
 
 // Main module function to handle installation and package.json modification
 module.exports = (testing = false) => {
-  const packageJsonPath = getPackageJsonPath();
-
   // If not in testing mode, install dependencies and update package.json
   if (!testing) {
-    // Define the GitHub dependency for 'type-scaf'
-    const githubDependency = "github:leewinter/type-scaf";
-
-    // Extract the package name from the GitHub dependency
-    const packageName = extractPackageNameFromGithubSource(githubDependency);
+    const packageJsonPath = getPackageJsonPath();
 
     // Install 'type-scaf' as a dev dependency if it's not already installed
-    installDevDependencyIfMissing(
-      packageJsonPath,
-      packageName,
-      githubDependency
+    installDependenciesIfMissing(
+      {
+        "type-scaf": "github:leewinter/type-scaf",
+      },
+      true
     );
 
     // Add custom scripts to package.json

@@ -1,9 +1,9 @@
 const fs = require("fs"); // Import the fs module to interact with the file system
 const logger = require("../../utils/logger");
 const {
-  getPackageJsonPath,
   installDevDependencyIfMissing,
-} = require("./install-dependencies");
+  getPackageJsonPath,
+} = require("../../services/npm-service");
 
 // Function to extract the package name from a GitHub dependency string
 function extractPackageNameFromGithubSource(dependency) {
@@ -33,10 +33,9 @@ function updatePackageScripts(packageJsonPath, scriptsToAdd) {
 
 // Main module function to handle installation and package.json modification
 module.exports = (testing = false) => {
-  const packageJsonPath = getPackageJsonPath();
-
   // If not in testing mode, install dependencies and update package.json
   if (!testing) {
+    const packageJsonPath = getPackageJsonPath();
     // Define the GitHub dependency for 'type-scaf'
     const githubDependency = "github:leewinter/type-scaf";
 
@@ -44,11 +43,7 @@ module.exports = (testing = false) => {
     const packageName = extractPackageNameFromGithubSource(githubDependency);
 
     // Install 'type-scaf' as a dev dependency if it's not already installed
-    installDevDependencyIfMissing(
-      packageJsonPath,
-      packageName,
-      githubDependency
-    );
+    installDevDependencyIfMissing(packageName, githubDependency);
 
     // Add custom scripts to package.json
     updatePackageScripts(packageJsonPath, {

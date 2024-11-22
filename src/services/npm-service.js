@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { execSync } = require("child_process");
-const logger = require("../../utils/logger");
+const logger = require("../utils/logger");
 const path = require("path");
 
 function getPackageJsonPath() {
@@ -28,17 +28,10 @@ function runCommand(command) {
   }
 }
 
-// Function to install a list of dependencies
-function installDependencies(dependencies) {
-  dependencies.forEach((dependency) => runCommand(`npm install ${dependency}`)); // Iterate over each dependency and run the install command
-}
-
 // Function to install a development dependency if it's not already in package.json
-function installDevDependencyIfMissing(
-  packageJsonPath,
-  packageName,
-  dependency
-) {
+function installDevDependencyIfMissing(packageName, dependency) {
+  const packageJsonPath = getPackageJsonPath();
+
   // Read and parse package.json to check if the dependency is present
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
 
@@ -71,14 +64,13 @@ function installDependenciesIfMissing(dependencies) {
       );
 
     if (!isDependencyInstalled)
-      installDependencies([`${packageName}@${dependencies[packageName]}`]);
+      runCommand(`npm install ${packageName}@${dependencies[packageName]}`);
     else logger.info(`Package ${packageName} already installed`);
   });
 }
 
 module.exports = {
   getPackageJsonPath,
-  installDependencies,
   installDevDependencyIfMissing,
   installDependenciesIfMissing,
 };

@@ -4,7 +4,7 @@ const fs = require("fs");
 const ejs = require("ejs");
 const prettier = require("prettier");
 const loadSettings = require("../load-settings");
-const getPrettierParser = require("../prettier-parse");
+const getPrettierParser = require("../../services/prettier-parse");
 const { resilientWrite } = require("../../utils/file-copy");
 const logger = require("../../utils/logger");
 
@@ -14,7 +14,7 @@ jest.mock("prettier");
 jest.mock("fs");
 jest.mock("path");
 jest.mock("../load-settings");
-jest.mock("../prettier-parse");
+jest.mock("../../services/prettier-parse");
 jest.mock("../../utils/file-copy");
 jest.mock("../../utils/logger");
 

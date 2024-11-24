@@ -1,12 +1,12 @@
 const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
-const loadSettings = require("./load-settings");
+const { loadSettings } = require("./files");
 const getPrettierParser = require("../services/prettier-parse-service");
 const prettier = require("prettier");
 const { resilientWrite } = require("../utils/file-copy");
 const logger = require("../utils/logger");
-const { generateMockArray } = require("./mock-data-service");
+const { generateMockArray } = require("../services/mock-data-service");
 
 const renderComponent = (className, properties, testMode) => {
   logger.info(`Starting to render component for class: ${className}`);

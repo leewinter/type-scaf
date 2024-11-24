@@ -5,3 +5,7 @@ The following script has been created as an example of the default types generat
 ```console
 ./create-boilerplate.sh default-data
 ```
+
+```console
+./create-boilerplate-extended.sh extended-data
+```

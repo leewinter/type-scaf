@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
-const loadSettings = require("./load-settings");
+const { loadSettings } = require("./files");
 const getPrettierParser = require("../services/prettier-parse-service");
 const prettier = require("prettier");
 const { resilientWrite } = require("../utils/file-copy");

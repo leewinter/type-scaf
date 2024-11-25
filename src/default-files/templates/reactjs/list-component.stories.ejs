@@ -10,6 +10,11 @@ export default {
   },
 };
 
+function isValidDateString(dateString) {
+  const date = new Date(dateString);
+  return !isNaN(date.getTime()) && date.toISOString().startsWith(dateString);
+}
+
 // Utility function to parse default data for the table component
 const parseTableData = (data) => {
   if (!Array.isArray(data)) {
@@ -22,7 +27,7 @@ const parseTableData = (data) => {
     for (const key in parsedItem) {
       if (Object.prototype.hasOwnProperty.call(parsedItem, key)) {
         const value = parsedItem[key];
-        if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+        if (typeof value === 'string' && isValidDateString(value)) {
           parsedItem[key] = new Date(value);
         }
       }

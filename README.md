@@ -3,6 +3,7 @@
 Type-Scaf is a development tool designed to help you quickly generate form components and Storybook stories based on JavaScript classes. It aims to simplify building consistent UI components in your React projects, using a types-driven approach for automation.
 
 [![Run Jest Tests](https://github.com/leewinter/type-scaf/actions/workflows/jest-tests.yaml/badge.svg)](https://github.com/leewinter/type-scaf/actions/workflows/jest-tests.yaml)
+![License: MIT](https://img.shields.io/github/license/leewinter/type-scaf)
 
 ## Getting Started
 

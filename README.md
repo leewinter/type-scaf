@@ -6,6 +6,7 @@ Type-Scaf is a development tool designed to help you quickly generate form compo
 ![License: MIT](https://img.shields.io/github/license/leewinter/type-scaf)
 ![Version](https://img.shields.io/github/package-json/v/leewinter/type-scaf)
 ![GitHub last commit](https://img.shields.io/github/last-commit/leewinter/type-scaf)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/leewinter/type-scaf)
 
 ## Getting Started
 

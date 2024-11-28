@@ -4,6 +4,8 @@ Type-Scaf is a development tool designed to help you quickly generate form compo
 
 [![Run Jest Tests](https://github.com/leewinter/type-scaf/actions/workflows/jest-tests.yaml/badge.svg)](https://github.com/leewinter/type-scaf/actions/workflows/jest-tests.yaml)
 ![License: MIT](https://img.shields.io/github/license/leewinter/type-scaf)
+![Version](https://img.shields.io/github/package-json/v/leewinter/type-scaf)
+![GitHub last commit](https://img.shields.io/github/last-commit/leewinter/type-scaf)
 
 ## Getting Started
 

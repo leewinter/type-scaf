@@ -4,7 +4,10 @@ const fs = require("fs");
 const ejs = require("ejs");
 const prettier = require("prettier");
 const { loadSettings } = require("../files");
-const getPrettierParser = require("../../services/prettier-parse-service");
+const {
+  getPrettierParser,
+  formatString,
+} = require("../../services/prettier-parse-service");
 const { resilientWrite } = require("../../utils/file-copy");
 const logger = require("../../utils/logger");
 
@@ -70,7 +73,7 @@ describe("renderComponent", () => {
     ejs.renderFile.mockImplementation((templatePath, data, callback) => {
       callback(null, "<div>Component Content</div>");
     });
-    prettier.format.mockResolvedValue("<div>Formatted Component Content</div>");
+    formatString.mockResolvedValue("<div>Formatted Component Content</div>");
     getPrettierParser.mockReturnValue("babel");
 
     await renderComponent(className, properties);
@@ -78,7 +81,7 @@ describe("renderComponent", () => {
     expect(ejs.renderFile).toHaveBeenCalledTimes(
       settings.transformTemplates.length
     );
-    expect(prettier.format).toHaveBeenCalledTimes(
+    expect(formatString).toHaveBeenCalledTimes(
       settings.transformTemplates.length
     );
     expect(resilientWrite).toHaveBeenCalledTimes(

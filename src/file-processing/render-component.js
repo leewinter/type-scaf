@@ -2,8 +2,10 @@ const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
 const { loadSettings } = require("./files");
-const getPrettierParser = require("../services/prettier-parse-service");
-const prettier = require("prettier");
+const {
+  getPrettierParser,
+  formatString,
+} = require("../services/prettier-parse-service");
 const { resilientWrite } = require("../utils/file-copy");
 const logger = require("../utils/logger");
 const { generateMockArray } = require("../services/mock-data-service");
@@ -147,7 +149,7 @@ const renderFile = (
 
     try {
       const parser = getPrettierParser(outputPath);
-      const formattedCode = await prettier.format(str, { parser });
+      const formattedCode = await formatString(str, { parser });
 
       resilientWrite(outputPath, formattedCode);
       logger.info(`${outputFileName}.jsx generated successfully.`);

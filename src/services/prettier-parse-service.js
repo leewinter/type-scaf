@@ -8,6 +8,8 @@ const getPrettierParser = (filePath) => {
   // If the file path ends with ".ts", return the "typescript" parser
   if (filePath.endsWith(".ts")) return "typescript";
 
+  if (filePath.endsWith(".tsx")) return "typescript";
+
   // Default to the "babel" parser if no specific conditions are met
   return "babel";
 };

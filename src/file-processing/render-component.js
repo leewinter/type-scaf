@@ -10,6 +10,11 @@ const { resilientWrite } = require("../utils/file-copy");
 const logger = require("../utils/logger");
 const { generateMockArray } = require("../services/mock-data-service");
 
+const extensionDictionary = {
+  reactjs: "jsx",
+  reactts: "tsx",
+};
+
 const renderComponent = (className, properties, testMode) => {
   logger.info(`Starting to render component for class: ${className}`);
 
@@ -139,20 +144,27 @@ const renderFile = (
   outputFileName,
   logName
 ) => {
+  const settings = loadSettings();
+
   ejs.renderFile(templatePath, data, async (err, str) => {
     if (err) {
       logger.error(`Error generating ${logName}:`, err);
       return;
     }
 
-    const outputPath = path.join(outputDirectory, `${outputFileName}.jsx`);
+    const outputPath = path.join(
+      outputDirectory,
+      `${outputFileName}.${extensionDictionary[settings.templateType]}`
+    );
 
     try {
       const parser = getPrettierParser(outputPath);
       const formattedCode = await formatString(str, { parser });
 
       resilientWrite(outputPath, formattedCode);
-      logger.info(`${outputFileName}.jsx generated successfully.`);
+      logger.info(
+        `${outputFileName}.${extensionDictionary[settings.templateType]} generated successfully.`
+      );
     } catch (error) {
       logger.error(`Error formatting or writing ${logName}:`, error);
     }

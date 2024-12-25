@@ -14,11 +14,23 @@
   "author": "lee.winter@boxspark.co.uk",
   "license": "ISC",
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/material": "^6.1.7",
+    "@mui/x-data-grid": "^7.22.2",
+    "@mui/x-date-pickers": "^7.22.2",
+    "@tanstack/react-query": "^5.60.6",
+    "axios": "^1.7.7",
     "commander": "^12.1.0",
+    "date-fns": "^2.28.0",
     "ejs": "^3.1.10",
+    "localforage": "^1.10.0",
     "prettier": "^3.3.3",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "ts-morph": "^24.0.0",
-    "winston": "^3.16.0"
+    "winston": "^3.16.0",
+    "yup": "^1.4.0"
   },
   "keywords": [],
   "devDependencies": {

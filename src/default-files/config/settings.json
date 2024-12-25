@@ -38,6 +38,8 @@
   },
   "baseRestApiUrl": "https://apiUrl.co.uk",
   "dependencies": {
+    "react": "18.0.0",
+    "react-dom": "18.0.0",
     "yup": "^1.4.0",
     "@mui/material": "^6.1.7",
     "@emotion/react": "^11.13.3",
